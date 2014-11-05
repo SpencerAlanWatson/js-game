@@ -8,11 +8,14 @@
             y: y,
             playerNumber: playerNumber,
 
-            speed: 300,
+            speed: 3000,
             radius: 10,
             pointerRadius: 4,
             rotation: 0,
             style: style || "black",
+            lastFire: -Infinity,
+            nextFire: -Infinity,
+            slowestFire: 100,
             tag: 'player',
             movement: {
                 x: 0,
@@ -53,13 +56,40 @@
             player.movement.x = 0;
             player.movement.y = 0;
         };
+        player.fireProjectile = function (rate, timestamp) {
+            if ( timestamp >= player.lastFire + ((1 - rate) * player.slowestFire)) {
+                
+                player.lastFire = timestamp ;
+                var cos = Math.cos(player.rotation),
+                    sin = Math.sin(player.rotation),
+                    projectile = Game.Projectile(player.rotation);
+                projectile.x = player.x - (player.radius * cos) - (projectile.radius * cos);
+                projectile.y = player.y - (player.radius * sin) - (projectile.radius * sin);
+
+                Game.manager.addToAll(projectile, 'projectile');
+            }
+        }
         player.controlTick = function (event) {
-            var controls = event.controls,
+            /* var controls = event.controls,
                 mousePos = controls.getMousePosition(),
                 dirX = player.x - mousePos.x,
                 dirY = player.y - mousePos.y;
 
-            player.rotation = Math.atan2(dirY, dirX);
+            player.rotation = Math.atan2(dirY, dirX);*/
+            var controls = event.controls,
+                axes = event.axes,
+                buttons = event.buttons,
+                dirX = -axes[2],
+                dirY = -axes[3];
+
+            player.addMovement(player.speed * axes[0], player.speed * axes[1]);
+
+            if ((dirX > 0.01 || dirX < -0.01) || (dirY > 0.01 || dirY < -0.01))
+                player.rotation = Math.atan2(dirY, dirX);
+
+            if (buttons[6].pressed) {
+                player.fireProjectile(buttons[6].value, event.timestamp);
+            }
         };
         player.bindControls = function (controls) {
             var id = player.playerNumber,
@@ -78,15 +108,7 @@
                 player.addMovement(player.speed, 0);
             });
 
-            controls.addEventListener('fire' + id + "Press", function (event) {
-                var cos = Math.cos(player.rotation),
-                    sin = Math.sin(player.rotation),
-                    projectile =  Game.Projectile(player.rotation);
-                projectile.x = player.x - (player.radius * cos) - (projectile.radius * cos);
-                projectile.y = player.y - (player.radius * sin) - (projectile.radius * sin);
-                
-                Game.manager.addToAll(projectile, 'projectile');
-            });
+            controls.addEventListener('fire' + id + "Press", player.fireProjectile);
 
             controls.addEventListener('controltick', player.controlTick);
         }

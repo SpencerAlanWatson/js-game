@@ -92,10 +92,17 @@
         };
         controls.controlTick = function (timestamp) {
             stats.begin();
+            var pads = navigator.getGamepads(),
+                axes = pads[0] ? pads[0].axes : [0,0,0,0],
+                buttons = pads[0] ? pads[0].buttons : [];
+            buttons[6] = buttons[6] || {pressed: false, value: 0};
+            
             controls.dispatchEvent({
                 type: 'controltick',
                 controls: controls,
                 timestamp: timestamp,
+                axes: axes,
+                buttons: buttons,
                 lastTimestamp: controls.lastTimestamp,
                 tickDelta: timestamp - controls.lastTimestamp
 
