@@ -8,7 +8,7 @@
             y: y,
             playerNumber: playerNumber,
 
-            speed: 3000,
+            speed: 300,
             radius: 10,
             pointerRadius: 4,
             rotation: 0,
