@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Game</title>
+    <style>
+        body {
+            background-color: #eee;
+        }
+        #canvas-container canvas{
+            clear:both;
+            background-color: #fff;
+        }
+        #stats-container {
+            float:left;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="stats-container">
+
+    </div>
+    <div id="canvas-container">
+    </div>
+
+    <!--<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>-->
+    <script async src="stats.js"></script>
+    <script async src="lodash.js"></script>
+    <script async src="EventDispatcher.js"></script>
+    <script async src="box.js"></script>
+    <script async src="controls.js"></script>
+    <script async src="graphics.js"></script>
+    <script async src="physics.js"></script>
+    <script async src="player.js"></script>
+    <script async src="manager.js"></script>
+    <script async src="projectile.js"></script>
+    <script async defer src="main.js"></script>
+</body>
+
+</html>
