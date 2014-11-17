@@ -2,7 +2,7 @@
 (function (global) {
     'use strict';
 
-    function Graphics(height, width) {
+    function Graphics(width, height) {
         var graphics = {},
             stats = new Stats();
         stats.setMode(0); // 0: fps, 1: ms
@@ -16,14 +16,23 @@
         graphics.batchlessObjects = [];
         graphics.batchObjects = {};
 
-        graphics.createCanvas = function (height, width) {
+        graphics.createCanvas = function (width, height) {
             var canvas = document.createElement('canvas');
             canvas.height = height;
             canvas.width = width;
             return canvas;
         };
-        graphics.screenCanvas = graphics.createCanvas(height, width);
-        graphics.screenContext = graphics.screenCanvas.getContext('2d');
+        graphics.createContext = function (width, height) {
+            var canvas = graphics.createCanvas(width, height);
+            return canvas.getContext('2d', {
+                'alpha': false
+            });
+        };
+
+        graphics.screenCanvas = graphics.createCanvas(width, height);
+        graphics.screenContext = graphics.screenCanvas.getContext('2d', {
+            'alpha': false
+        });
 
         graphics.clearCanvas = function (canvas) {
             --canvas.height;
@@ -32,11 +41,12 @@
         graphics.drawBatches = function (context) {
             _.each(graphics.batchObjects, function (value, key) {
                 if (value.length) {
-                    value[0].startBatchDraw(context);
-                    _.invoke(value, 'draw', context);
-                    value[0].endBatchDraw(context);
+                    var cache = value[0].startBatchDraw(context, graphics);
+                    _.invoke(value, 'draw',context, cache);
+                    value[0].endBatchDraw(context, graphics);
                 }
             });
+            //context.putImageData(graphics.nextFrame.getImageData(0, 0, graphics.width, graphics.height), 0,0); //.graphics.nextFrame.canvas, 0, 0);
         };
         graphics.drawBatchless = function (context) {
             _.each(graphics.batchlessObjects, function (value) {
@@ -85,8 +95,10 @@
             var batch = graphics.batchObjects[batchName];
             if (batch) {
                 var index = batch.indexOf(object);
+                delete batch[index];
                 if (index !== -1) {
-                    batch.splice(index, 1);
+                    let removed = batch.splice(index, 1);
+                    delete removed[0];
                 }
             }
         };
@@ -95,10 +107,21 @@
         };
         graphics.removeBatchless = function (object) {
             var index = graphics.batchlessObjects.indexOf(object);
+            delete graphics.batchlessObjects[index];
             if (index !== -1) {
-                graphics.batchlessObjects.splice(index, 1);
+                let removed = graphics.batchlessObjects.splice(index, 1);
+                delete removed[0];
             }
         }
+        window.addEventListener('resize', function (event) {
+            var width = window.innerWidth,
+                height = window.innerHeight;
+
+            graphics.width = width;
+            graphics.height = height;
+            graphics.screenCanvas.width = width;
+            graphics.screenCanvas.height = height;
+        });
         document.getElementById('canvas-container').appendChild(graphics.screenCanvas);
         return graphics;
     };

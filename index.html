@@ -5,29 +5,114 @@
     <title>Game</title>
     <style>
         body {
-            background-color: #eee;
+            background-color: #000;
         }
-        #canvas-container canvas{
-            clear:both;
-            background-color: #fff;
+        #canvas-container {
+            background-color: #000;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
+        #canvas-container canvas {
+            clear: both;
+            background-color: #000;
+        }
+        #angular-container,
         #stats-container {
-            float:left;
+            position: absolute;
+            z-index: 1;
+            left: 0;
+            top: 0;
+        }
+        #alert-container {
+            position: relative;
+            z-index: 2;
+            width: 50%;
+            margin: 0 50%;
         }
     </style>
+    <link rel="stylesheet" href="css/bootstrap.css">
+
+
 </head>
 
 <body>
-    <div id="stats-container">
 
-    </div>
     <div id="canvas-container">
     </div>
+    <section ng-controller="controllers" class="angular-container">
+        <div id="alert-container">
+        </div>
+        <div ng-show="showStats" id="stats-container">
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">Controls</h4>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th ng-repeat="playerId in players">Player {{playerId}}</th>
+                                    <!--<th>Player 2</th>-->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="gamepadIndex in gamepads">
+                                    <th>{{gamepadIndex}}: {{$parent.gamepadsId[gamepadIndex]}}</th>
+                                    <td ng-repeat="playerId in $parent.players">
+                                        <input type="checkbox" ng-model="$parent.$parent.bindings[$parent.gamepadIndex][playerId]" ng-change="$parent.$parent.toggleBinding($parent.gamepadIndex, playerId)">
+                                    </td>
+                                    <!--<td>
+                                        <input type="checkbox" ng-model="$parent.bindings[gamepadIndex][1]" ng-true-value="2" ng-false-value="null" ng-model-option="">
+                                    </td>-->
+                                    <!-- <td>
+                                        <input type="checkbox" 
+                                               ng-model="$parent.controllerBinder(gamepadIndex, 1)" ng-change="$parent.toggleBinding(gamepadIndex, 1)">
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" ng-model="$parent.bindings[gamepadIndex].indexOf(2) !== -1" ng-change="$parent.toggleBinding(gamepadIndex, 2)">
+                                    </td>-->
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script async src="vendor/angular.js"></script>
+    <script src="vendor/jquery-2.1.1.js"></script>
+    <script async defer src="vendor/bootstrap.js"></script>
+    <script async src="vendor/stats.js"></script>
+    <script async src="vendor/lodash.js"></script>
+    <script async src="vendor/EventDispatcher.js"></script>
+    <script defer>
+        document.addEventListener('readystatechange', function (event) {
+            'use strict';
+            var alertConnect = '<div class="alert alert-danger alert-dismissible fade in" role="alert">';
+            alertConnect += '<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
+            alertConnect += '<h4 class="alert-heading">This game requires settings to be enabled!</h4>';
+            alertConnect += '<p> This game was tested on Chrome. </p>';
+            alertConnect += '<p> you need to enable some settings, so copy in to your address bar: </p>';
+            alertConnect += '<p> chrome://flags/#enable-experimental-canvas-features</p>';
+            alertConnect += '<p> chrome://flags/#enable-javascript-harmony</p>';
 
-    <!--<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>-->
-    <script async src="stats.js"></script>
-    <script async src="lodash.js"></script>
-    <script async src="EventDispatcher.js"></script>
+            alertConnect += '</div>';
+            $(alertConnect).appendTo('#alert-container');
+            
+        });
+    </script>
     <script async src="box.js"></script>
     <script async src="controls.js"></script>
     <script async src="graphics.js"></script>
@@ -35,7 +120,10 @@
     <script async src="player.js"></script>
     <script async src="manager.js"></script>
     <script async src="projectile.js"></script>
+    <script async src="point.js"></script>
+    <script async src="ai.js"></script>
     <script async defer src="main.js"></script>
+    <!-- <script async src="game.min.js"></script>-->
 </body>
 
 </html>

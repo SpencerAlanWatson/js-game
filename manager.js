@@ -2,16 +2,23 @@
 (function (global) {
     'use strict';
 
-    function Manager(height, width) {
+    function Manager(width, height) {
         var manager = {
-            graphics: Game.Graphics(height, width),
-            physics: Game.Physics()
+            graphics: Game.Graphics(width, height),
+            physics: Game.Physics(),
+            objects: [],
+
         };
-        manager.controls = Game.Controls(manager.graphics.screenCanvas);
+        manager.controls = Game.Controls(manager.graphics.screenCanvas, manager.graphics.screenCanvas.parentElement);
+        manager.eventEmitters = {
+            graphics: manager.graphics,
+            physics: manager.physics,
+            controls: manager.controls
+        };
 
         manager.start = function () {
             manager.graphics.start();
-            manager.physics.start();
+            manager.physics.start(manager.objects);
             manager.controls.start();
         };
         manager.stop = function () {
@@ -19,6 +26,41 @@
             manager.physics.stop();
             manager.controls.stop();
         };
+
+        function add(object) {
+            if (object.setupListeners)
+                object.setupListeners(manager.eventEmitters);
+            manager.objects.push(object);
+            manager.addToGraphics(object, object.batchName ? object.batchName : false);
+        }
+
+        function remove(object) {
+            let undefined;
+            if (object !== undefined) {
+                var index = manager.objects.indexOf(object),
+                    batchName = object.batchName ? object.batchName : false;
+                if (object.removeListeners)
+                    object.removeListeners(manager.eventEmitters);
+
+                manager.removeFromGraphics(object, batchName);
+                //manager.removeFromPhysics(object);
+
+                delete manager.objects[index];
+                if (index !== -1) {
+                    let removed = manager.objects.splice(index, 1);
+                    delete removed[0];
+                }
+                if (object.destroy)
+                    object.destroy();
+            }
+        }
+        manager.add = function (object) {
+            _.defer(add, object);
+        }
+        manager.remove = function (object) {
+            _.defer(remove, object);
+        };
+
         manager.addToAll = function (object, batchName) {
             manager.addToGraphics(object, batchName);
 

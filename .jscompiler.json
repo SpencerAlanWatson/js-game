@@ -1,0 +1,14 @@
+{
+    "project": "Game",
+    "inputs": ["box.js",
+"controls.js",
+"graphics.js",
+"physics.js",
+"player.js",
+"manager.js",
+"projectile.js",
+"point.js",
+"main.js"],
+    "output": "game.min.js",
+    "isolate": false
+}
