@@ -14,10 +14,10 @@
 
              manager.add(p, 'player');
 
-             if (i > 0) {
+/*             if (i > 0) {
                  let ai = Game.TestAI(i);
                  ai.setupListeners(manager.eventEmitters);
-             }
+             }*/
          }
 
 
@@ -33,7 +33,7 @@
 
 
 
-         manager.start();
+         //manager.start();
 
 
          //global.Game.p1 = p1;
