@@ -33,7 +33,7 @@
 
 
 
-         //manager.start();
+         manager.start();
 
 
          //global.Game.p1 = p1;
