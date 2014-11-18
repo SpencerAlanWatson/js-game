@@ -3,51 +3,94 @@
     'use strict';
 
     function Wall(x, y, width, height) {
-        var wall = {
-            x: x,
-            y: y,
-
-            speed: 300,
+        var wall = _.create(v2(x, y), {
+            width: width,
+            height: height,
             radius: 15,
-            pointerRadius: 4,
             rotation: 0,
             style: style || "black",
             mass: 1,
             tag: 'wall',
             batchName: 'wall',
             gravity: false,
-            tao: Math.PI * 2
-        };
+        });
         wall.uid = _.uniqueId(wall.tag)
 
-        wall.startBatchDraw = function (context) {
-            context.strokeStyle = wall.style;
-            context.beginPath();
-        };
-        wall.draw = function (context) {
-            var frontX = wall.radius * Math.cos(wall.rotation),
-                frontY = wall.radius * Math.sin(wall.rotation);
+        
+        if (Path2D !== undefined) {
+            wall.startBatchDraw = function (context) {
 
-            context.moveTo(wall.x + frontX, wall.y + frontY);
+                context.save();
+                context.strokeStyle = player.style;
+                context.fillStyle = player.style;
+                return player.setupCache(new Path2D());
 
-            context.arc(wall.x, wall.y, wall.radius, wall.rotation, wall.rotation + wall.tao);
-            context.moveTo(wall.x + frontX / 4, wall.y + frontY / 4);
 
-            context.arc(wall.x, wall.y, wall.radius / 4, wall.rotation, wall.rotation + (wall.tao * wall.health / wall.maxHealth));
+                //context.beginPath();
+            };
+            wall.setupCache = function (path2d) {
 
-            context.moveTo(
-                wall.x - frontX,
-                wall.y - frontY);
+                path2d.rect(wall.x, wall.y, wall.width, wall.height);
+                return path2d;
+            };
 
-            var rotStart = wall.rotation - Math.PI / 2,
-                rotEnd = wall.rotation + Math.PI / 2;
+            wall.draw = function (context, path2d) {
+                context.save();
+                context.translate(player.x, player.y);
 
-            context.arc(wall.x - frontX, wall.y - frontY, wall.pointerRadius, rotEnd, rotStart);
-        };
-        wall.endBatchDraw = function (context) {
-            context.stroke();
-        };
+                context.rotate(player.rotation);
+                path2d = path2d || player.cache;
+                // ctx.translate(-60, -25);
+                context.stroke(path2d);
+                context.moveTo(player.radius / 4, 0);
+                context.arc(0, 0, player.radius / 4, 0, (player.tao * player.health / player.maxHealth));
+                context.stroke();
 
+                context.restore();
+            };
+            wall.endBatchDraw = function (context) {
+                context.restore();
+            };
+            wall.cache = player.setupCache(new Path2D());
+        } else {
+            wall.startBatchDraw = function (context, graphics) {
+
+                context.save();
+                context.strokeStyle = player.style;
+
+
+                context.beginPath();
+            };
+
+            wall.draw = function (context) {
+                var frontX = player.radius * Math.cos(player.rotation),
+                    frontY = player.radius * Math.sin(player.rotation);
+                context.save();
+                context.moveTo(player.x + frontX, player.y + frontY);
+
+                context.arc(player.x, player.y, player.radius, player.rotation, player.rotation + player.tao);
+                context.moveTo(player.x + frontX / 4, player.y + frontY / 4);
+
+                context.arc(player.x, player.y, player.radius / 4, player.rotation, player.rotation + (player.tao * player.health / player.maxHealth));
+
+                context.moveTo(
+                    player.x - frontX,
+                    player.y - frontY);
+
+                var rotStart = player.rotation - Math.PI / 2,
+                    rotEnd = player.rotation + Math.PI / 2;
+
+                context.arc(player.x - frontX, player.y - frontY, player.pointerRadius, rotEnd, rotStart);
+                context.restore();
+            };
+            wall.endBatchDraw = function (context) {
+                context.stroke();
+
+                context.restore();
+            };
+
+
+        }
 
         wall.physicsTick = function (perSecond) {
             wall.x += wall.movement.x; //* perSecond;

@@ -7,7 +7,7 @@
             playerNumber: playerNumber,
 
             speed: 300,
-            radius: 15,
+            radius: 25,
             pointerRadius: 4,
             rotation: 0,
             style: style || "white",
@@ -17,11 +17,13 @@
             tag: 'player',
             batchName: 'player',
             gravity: false,
-            health: 100,
-            maxHealth: 100,
+            health: 400,
+            maxHealth: 400,
             movement: v2(0, 0),
+            hpBarStyles: ["white", "blue", "lightgreen", "darkred", 'yellow'],
             tao: Math.PI * 2
         });
+        player.hpBarRadius = player.radius -2;
         player.uid = _.uniqueId(player.tag);
 
         if (Path2D !== undefined) {
@@ -30,6 +32,11 @@
                 context.save();
                 context.strokeStyle = player.style;
                 context.fillStyle = player.style;
+                context.lineWidth = 2.5;
+                context.font = player.hpBarRadius + "px Roboto Condensed";
+                context.textAlign = 'center';
+                context.textBaseline = "middle";
+                context.beginPath();
                 return player.setupCache(new Path2D());
 
 
@@ -37,13 +44,13 @@
             };
             player.setupCache = function (path2d) {
 
-                path2d.arc(0, 0, player.radius, 0, Math.PI * 2);
-                //path2d.moveTo(player.radius / 4, 0);
-                //path2d.arc(0, 0, player.radius / 4, 0, (player.tao * player.health / player.maxHealth));
+                //path2d.arc(0, 0, player.radius, 0, Math.PI * 2);
+                //path2d.moveTo(player.hpBarRadius, 0);
+                //path2d.arc(0, 0, player.hpBarRadius, 0, (player.tao * player.health / player.maxHealth));
 
                 path2d.moveTo(-player.radius, 0);
 
-                path2d.arc(-player.radius, 0, player.pointerRadius, Math.PI/2 , -Math.PI/2 );
+                path2d.arc(-player.radius, 0, player.pointerRadius, Math.PI / 2, -Math.PI / 2);
                 return path2d;
             };
 
@@ -55,9 +62,45 @@
                 path2d = path2d || player.cache;
                 // ctx.translate(-60, -25);
                 context.stroke(path2d);
-                context.moveTo(player.radius / 4, 0);
-                context.arc(0, 0, player.radius / 4, 0, (player.tao * player.health / player.maxHealth));
-                context.stroke();
+                context.moveTo(player.hpBarRadius, 0);
+                if (player.health > 0) {
+                    let perc = player.health % 100 / 100;
+                    if (perc === 0) {
+
+
+                        context.strokeStyle = player.hpBarStyles[player.health / 100];
+                        context.arc(0, 0, player.hpBarRadius, 0, player.tao, false);
+                    } else if (player.health / 100 < 1) {
+                        context.strokeStyle = player.hpBarStyles[1];
+                        context.beginPath();
+                        context.arc(0, 0, player.hpBarRadius, 0, player.tao * perc, false);
+                        context.closePath();
+                    } else {
+                        let endAngle = player.tao * perc;
+
+                        context.strokeStyle = player.hpBarStyles[Math.floor(player.health / 100)];
+
+                        context.beginPath();
+                        context.arc(0, 0, player.hpBarRadius, 0, endAngle, true);
+                        context.closePath();
+                        context.stroke();
+
+                        //console.log(perc, Math.ceil(player.health / 100), Math.floor(player.health / 100));
+                        context.beginPath();
+                        context.strokeStyle = player.hpBarStyles[Math.ceil(player.health / 100)];
+
+                        context.arc(0, 0, player.hpBarRadius, 0, endAngle, false);
+                        context.closePath();
+
+
+
+                    }
+                    context.stroke();
+
+                }
+                context.strokeStyle = player.style;
+                context.beginPath();
+                context.fillText(player.health, 0, 0);
 
                 context.restore();
             };
@@ -82,9 +125,9 @@
                 context.moveTo(player.x + frontX, player.y + frontY);
 
                 context.arc(player.x, player.y, player.radius, player.rotation, player.rotation + player.tao);
-                context.moveTo(player.x + frontX / 4, player.y + frontY / 4);
+                context.moveTo(player.x + frontX / 3, player.y + frontY / 3);
 
-                context.arc(player.x, player.y, player.radius / 4, player.rotation, player.rotation + (player.tao * player.health / player.maxHealth));
+                context.arc(player.x, player.y, player.hpBarRadius, player.rotation, player.rotation + (player.tao * player.health / player.maxHealth));
 
                 context.moveTo(
                     player.x - frontX,
@@ -100,21 +143,6 @@
                 context.stroke();
 
                 context.restore();
-            };
-            player.setupCache = function (context) {
-                context.strokeStyle = "white";
-
-                context.arc(player.radius, player.radius, player.radius, 0, Math.PI * 2);
-                var hpr = player.radius / 4;
-                context.moveTo(player.radius + hpr, player.radius);
-
-                context.arc(player.radius, player.radius, hpr, 0, (player.tao * player.health / player.maxHealth));
-
-                context.moveTo(player.radius * 2, player.radius);
-
-                context.arc(player.radius * 2, player.radius, player.pointerRadius, -Math.PI / 2, Math.PI / 2);
-                context.stroke();
-                return context;
             };
 
 
@@ -150,7 +178,15 @@
                     player.y - (player.radius * sin) - (4 * sin) - (player.pointerRadius * sin)
                 ));
             }
-        }
+        };
+        player.getPoints = function () {
+            return [v2(player.x, player.y)];
+        };
+        player.getAxes = function (oPoints) {
+            _.each(oPoints, function (point) {
+
+            });
+        };
         player.controlTick = function (event) {
             /* var controls = event.controls,
                 mousePos = controls.getMousePosition(),

@@ -12,12 +12,12 @@
          for (let i = 0, incX = 40; i < 2; ++i) {
              let p = Game.Player(i, 20 + incX * i, 20);
 
-             manager.add(p, 'player');
+             manager.addPlayer(20 + incX * i, 20);
 
-             if (i > 0) {
+/*             if (i > 0) {
                  let ai = Game.TestAI(i);
                  ai.setupListeners(manager.eventEmitters);
-             }
+             }*/
          }
 
 
@@ -47,10 +47,13 @@
                  $scope.players = [0, 1];
                  $scope.gamepads = controls.gamepadsConnected;
                  $scope.gamepadsId = controls.gamepadsId;
-                 $scope.bindings = controls.controllerToPlayer;
+                 $scope.controllerToPlayer = controls.controllerToPlayer;
+                 $scope.inputNames = controls.inputNames;
+                 $scope.controllerBindings = controls.controllerBindings;
+                 
 
-                 $scope.toggleBinding = function (gamepadIndex, playerId) {
-                     if ($scope.bindings[gamepadIndex][playerId]) {
+                 $scope.toggleControllerToPlayer = function (gamepadIndex, playerId) {
+                     if ($scope.controllerToPlayer[gamepadIndex][playerId]) {
                          controls.addPlayerToController(playerId, gamepadIndex);
 
                      } else {
@@ -58,34 +61,7 @@
                      }
                  };
                  $scope.showStats = false;
-                 var testBinded1 = false,
-                     testBinded2 = false;
 
-                 $scope.controllerBinder = function (gamepadIndex, playerId) {
-                     return function (newValue) {
-                         if (angular.isDefined(newValue)) {
-                             let index = $parent.bindings[gamepadIndex].indexOf(playerId);
-                             if (newValue && index === -1) {
-                                 $parent.bindings[gamepadIndex].push(playerId);
-                             } else if (!newValue && index !== -1) {
-                                 delete $parent.bindings[gamepadIndex][index];
-                                 $parent.bindings[gamepadIndex].splice(index, 1);
-                             }
-                         }
-                         return $parent.bindings[gamepadIndex].indexOf(playerId) !== -1;
-                     };
-                 };
-
-                 $scope.controllerBinded1 = function (newValue) {
-                     if (angular.isDefined(newValue)) {
-                         console.log(this);
-                         return (testBinded1 = newValue);
-                     }
-                     return testBinded1;
-                 }
-                 $scope.controllerBinded2 = function (newValue) {
-                     return angular.isDefined(newValue) ? (testBinded2 = newValue) : testBinded2;
-                 }
                  $scope.controlTick = function (event) {
                      var input = event.input;
                      if (input['showStats'].released) {
@@ -100,11 +76,6 @@
                  $scope.alertConnect = '<div class="alert alert-info alert-dismissible fade in" role="alert">';
                  $scope.alertConnect += '<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
                  $scope.alertConnect += '<h4 class="alert-heading">Controller Connected!</h4>';
-                 /*$scope.alertConnect += '<p>Change this and that and try again. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum.</p>';
-                 $scope.alertConnect += '<p>';
-                 $scope.alertConnect += '<button type="button" class="btn btn-danger">Take this action</button>';
-                 $scope.alertConnect += '<button type="button" class="btn btn-default">Or do this</button>';
-                 $scope.alertConnect += '</p>';*/
                  $scope.alertConnect += '</div>';
                  $scope.onControllerConnect = function (event) {
                      var alert = $($scope.alertConnect).alert().appendTo("#alert-container");

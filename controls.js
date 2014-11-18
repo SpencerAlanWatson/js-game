@@ -22,10 +22,10 @@
         };
     }
 
+
     function defaultKeyboardBindings() {
         return {
             id: 'keyboard&mouse',
-            index: -1,
             //w
             87: '+moveV',
             //up-arrow
@@ -56,8 +56,7 @@
 
     function defaultKeyboardBindingsNew() {
         return {
-            id: 'keyboard&mouse',
-            index: -1,
+            id: 'Keyboard and Mouse',
             //w
             '-moveV': [87, 38],
 
@@ -83,7 +82,6 @@
     function defaultControllerBindings(controllerId, index) {
         return {
             id: controllerId,
-            index: index,
             //left stick x
             'a0': 'moveH',
 
@@ -105,7 +103,6 @@
     function defaultControllerBindingsNew(controllerId, index) {
         return {
             id: controllerId,
-            index: index,
             //left stick x
             'moveH': ['a0'],
 
@@ -125,6 +122,15 @@
     function Controls(canvas, canvasContainer) {
 
         var controls = {
+                inputNames: [
+                    'moveV',
+                    'moveH',
+                    'lookV',
+                    'lookH',
+                    'fire',
+                    'showStats',
+                    'showControls'
+                ],
                 controllerInputValues: {
                     '-1': InputValues(),
                     //'0': InputValues()
@@ -146,6 +152,7 @@
                 gamepadsId: [],
                 lastTimestamp: global.performance.now(),
                 interval: 0,
+                bindingDB: null
             },
 
             domMousePositionX = 0,
@@ -163,6 +170,103 @@
 
         EventDispatcher.prototype.apply(controls);
         controls.InputValue = InputValue;
+
+        controls.addBindingToController = function (controllerIndex, inputName, buttonName) {
+            if (controls.controllerBindings[controllerIndex]) {
+                controls.controllerBindings[controllerIndex][inputName].push(buttonName);
+            }
+        };
+        controls.removeBindingFromController = function (controllerIndex, inputName, buttonName) {
+            if (controls.controllerBindings[controllerIndex]) {
+                if (buttonName) {
+                    let buttonIndex = controls.controllerBindings[controllerIndex][inputName].indexOf(buttonName);
+                    if (buttonIndex !== -1) {
+                        delete controls.controllerBindings[controllerIndex][inputName][buttonIndex];
+                        controls.controllerBindings[controllerIndex][inputName].splice(buttonIndex, 1);
+
+                    }
+                } else {
+                    delete controls.controllerBindings[controllerIndex][inputName];
+                    controls.controllerBindings[controllerIndex][inputName] = [];
+                }
+            }
+        };
+        controls.openDatabase = function (callback) {
+            if (controls.bindingDB) {
+                controls.bindingDB.close();
+            }
+            controls.bindingDB = window.indexedDB.open('Game Controls');
+            // This event handles the event whereby a new version of the database needs to be created
+            // Either one has not been created before, or a new version number has been submitted via the
+            // window.indexedDB.open line above
+            controls.bindingDB.addEventListener('upgradeneeded', function (event) {
+                var db = event.target.result;
+
+                db.onerror = function (event) {
+                    //note.innerHTML += '<li>Error loading database.</li>';
+                    throw event;
+                };
+
+                // Create an objectStore for this database
+
+                var objectStore = db.createObjectStore("bindings", {
+                    keyPath: "id"
+                });
+
+                // define what data items the objectStore will contain
+                _.each(controls.inputNames, function (inputName) {
+                    objectStore.createIndex(inputName, inputName, {
+                        unique: false
+                    });
+                });
+
+            });
+            controls.bindingDB.addEventListener('success', function (event) {
+                controls.bindingDB = controls.bindingDB.result;
+                callback(controls.bindingDB);
+            });
+        };
+        controls.saveControllerBindings = function (controllerIndex, callback) {
+            if (controls.controllerBindings[controllerIndex]) {
+                controls.openDatabase(function (db) {
+                    var transaction = db.transaction(["bindings"], "readwrite");
+                    transaction.addEventListener('error', function (event) {
+                        throw event;
+                    });
+                    var objectStore = transaction.objectStore("bindings");
+                    // add our newItem object to the object store
+                    var objectStoreRequest = objectStore.add(controls.controllerBindings[controllerIndex]);
+                    objectStoreRequest.addEventListener('success', function (event) {
+                        callback(event);
+                    });
+
+                    objectStoreRequest.addEventListener('error', function (event) {
+                        throw event;
+                    });
+                });
+
+            }
+        };
+        controls.loadControllerBindings = function (controllerIndex, controllerId, callback) {
+            controls.openDatabase(function (db) {
+                var transaction = db.transaction(["bindings"], "readwrite");
+                transaction.addEventListener('error', function (event) {
+                    throw event;
+                });
+                var objectStore = transaction.objectStore("bindings");
+                // add our newItem object to the object store
+                var objectStoreRequest = objectStore.get(controllerId);
+                objectStoreRequest.addEventListener('success', function (event) {
+                    var myRecord = objectStoreRequest.result;
+                    controls.controllerBindings[controllerIndex] = myRecord;
+                    callback(myRecord);
+                });
+                objectStoreRequest.addEventListener('error', function (event) {
+                    throw event;
+                });
+            });
+        };
+
 
         /**
          * Set's the value of an input for a controller
@@ -214,11 +318,23 @@
             }
         };
         controls.addController = function (controller, isCustom) {
-                controls.gamepadsConnected.push(controller.index);
-                controls.gamepadsId[controller.index] = controller.id;
+            controls.gamepadsConnected.push(controller.index);
+            controls.gamepadsId[controller.index] = controller.id;
 
-                controls.controllerInputValues[controller.index] = InputValues();
-                controls.controllerToPlayer[controller.index] = [];
+            controls.controllerInputValues[controller.index] = InputValues();
+            controls.controllerToPlayer[controller.index] = [];
+            for (let i = 0, noPlayer = true; i < Game.manager.playerCount; ++i) {
+                let noController = _.all(controls.controllerToPlayer, function (players, controllerIndex) {
+                    return !players[i];
+                });
+                if (noController && noPlayer) {
+                    controls.controllerToPlayer[controller.index][i] = true;
+                    noPlayer = false;
+                } else {
+                    controls.controllerToPlayer[controller.index][i] = false;
+
+                }
+            }
             if (!isCustom) {
                 controls.controllerBindings[controller.index] = defaultControllerBindingsNew();
             }
