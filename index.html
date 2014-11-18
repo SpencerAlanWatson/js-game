@@ -30,6 +30,12 @@
             width: 50%;
             margin: 0 50%;
         }
+        .value-over {
+            position: relative;
+        }
+        .value-over > .value {
+            position: absolute;
+        }
     </style>
     <link rel="stylesheet" href="css/bootstrap.css">
 
@@ -83,20 +89,54 @@
                                             </td>
                                         </tr>
                                     </table>
-                                    <table>
-                                        <thead>
-                                            <th>Input</th>
-                                            <th>Bindings</th>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat='input in $parent.inputNames'>
-                                                <td>{{input}}</td>
-                                                <td>
-                                                    {{$parent.$parent.controllerBindings[$parent.gamepadIndex][input]}}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <table>
+                                                <thead>
+                                                    <th>Input</th>
+                                                    <th>Bindings</th>
+                                                </thead>
+                                                <tbody>
+                                                    <tr ng-repeat='input in $parent.inputNames'>
+                                                        <td>{{input}}</td>
+                                                        <td>
+                                                            {{$parent.$parent.controllerBindings[$parent.gamepadIndex][input]}}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <table class="table table-condensed">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Button</th>
+                                                        <th>Value</th>
+                                                        <th>Is Pressed?</th>
+                                                        <th>Was Released?</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr ng-repeat='button in $parent.currentStates[gamepadIndex]'>
+                                                        <th>{{button.name}}</th>
+                                                        <td ng-mouseenter="show = true" ng-mouseleave="show = false" ng-init="show = false">
+                                                            <span ng-hide="show">{{button.value.toFixed(2)}}</span>
+                                                            <div class="value-over" ng-show="show">
+                                                                <kbd class="value">{{button.value}}</kbd>
+                                                            </div>
+
+                                                        </td>
+                                                        <td>
+                                                            {{button.pressed}}
+                                                        </td>
+                                                        <td>
+                                                            {{button.released}}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
 
                                 </div>
                                 <!--<div role="tabpanel " class="tab-pane " id="profile ">...</div>

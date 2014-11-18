@@ -399,7 +399,23 @@
                     input: inputValues,
                     mouseCoords: mouseCoords
                 });
+
             });
+
+            controls.dispatchEvent({
+                type: 'control-tick-all',
+                controls: controls,
+                timestamp: timestamp,
+                lastTimestamp: controls.lastTimestamp,
+                tickDelta: tickDelta,
+                keysPressed: controls.keysPressed,
+                keysReleased: controls.keysReleased,
+                gamepads: gamepads,
+                //controllerId: bindings.id,
+                mouseCoords: mouseCoords
+            });
+                        controls.keysReleased.clear();
+
 
 
             controls.lastTimestamp = timestamp;
@@ -441,7 +457,7 @@
                 }
 
             });
-            controls.keysReleased.clear();
+            //controls.keysReleased.clear();
         };
         controls.gamepadTick = function (gamepad, playerIds, controllerIndex, bindings, inputValues) {
             if (!gamepad)
