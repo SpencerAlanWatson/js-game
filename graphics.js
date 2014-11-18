@@ -1,5 +1,5 @@
 ;
-(function (global) {
+(function (global, undefined) {
     'use strict';
 
     function Graphics(width, height) {
