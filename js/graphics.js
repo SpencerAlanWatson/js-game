@@ -3,7 +3,9 @@
     'use strict';
 
     function Graphics(width, height) {
-        var graphics = {},
+        var graphics = {
+                gl: null
+            },
             stats = new Stats();
         stats.setMode(0); // 0: fps, 1: ms
 
@@ -22,6 +24,18 @@
             canvas.width = width;
             return canvas;
         };
+        graphics.getContext = function (canvas) {
+            var gl = null,
+                options = {'alpha': false};
+            try {
+                // Try to grab the standard context. If it fails, fallback to experimental.
+                gl = canvas.getContext("webgl", options) || canvas.getContext("experimental-webgl", options);
+            } catch (e) {
+                alert("Unable to initialize WebGL. Your browser may not support it.");
+                gl = null;
+            }
+            return gl;
+        }
         graphics.createContext = function (width, height) {
             var canvas = graphics.createCanvas(width, height);
             return canvas.getContext('2d', {
@@ -30,10 +44,7 @@
         };
 
         graphics.screenCanvas = graphics.createCanvas(width, height);
-        graphics.screenContext = graphics.screenCanvas.getContext('2d', {
-            'alpha': false
-        });
-
+        graphics.screenContext = graphics.getContext(graphics.screenCanvas
         graphics.clearCanvas = function (canvas) {
             --canvas.height;
             ++canvas.height;
@@ -42,7 +53,7 @@
             _.each(graphics.batchObjects, function (value, key) {
                 if (value.length) {
                     var cache = value[0].startBatchDraw(context, graphics);
-                    _.invoke(value, 'draw',context, cache);
+                    _.invoke(value, 'draw', context, cache);
                     value[0].endBatchDraw(context, graphics);
                 }
             });
