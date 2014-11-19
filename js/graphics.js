@@ -29,7 +29,7 @@
                 };
             try {
                 // Try to grab the standard context. If it fails, fallback to experimental.
-                gl = canvas.getContext("webgl", options) || canvas.getContext("experimental-webgl", options);
+                gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
             } catch (e) {
                 alert("Unable to initialize WebGL. Your browser may not support it.");
                 gl = null;
@@ -59,9 +59,11 @@
                 // Clear the color as well as the depth buffer.
                 graphics.screenContext.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             }
+            document.getElementById('canvas-container').appendChild(graphics.screenCanvas);
+
             //This is to allow chaining,
             //that we can create a graphics object and init it in one line.
-            return graphics; 
+            return graphics;
         };
 
 
@@ -154,7 +156,6 @@
             graphics.screenCanvas.width = width;
             graphics.screenCanvas.height = height;
         });
-        document.getElementById('canvas-container').appendChild(graphics.screenCanvas);
         return graphics;
     };
 

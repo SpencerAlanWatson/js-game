@@ -10,9 +10,9 @@
 
 
          for (let i = 0, incX = 40; i < 2; ++i) {
-             let p = Game.Player(i, 20 + incX * i, 20);
+             //let p = Game.Player(i, 20 + incX * i, 20);
 
-             manager.add(p, 'player');
+             //manager.add(p, 'player');
 
 /*             if (i > 0) {
                  let ai = Game.TestAI(i);
@@ -33,7 +33,7 @@
 
 
 
-         manager.start();
+         //manager.start();
 
 
          //global.Game.p1 = p1;
