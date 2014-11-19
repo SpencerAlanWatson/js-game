@@ -5,7 +5,11 @@
     function FileLoader() {
         var loader = {
             dirs: {
-                'js': 'js/'
+                'js': 'js/',
+                'shader': 'shaders/',
+                'css': 'css/',
+                'img': 'imgs/',
+                'font': 'fonts/'
             }
         };
 
@@ -31,10 +35,41 @@
         };
 
 
-        loader.load = function (type, name, callback) {
-            var dir = loader.dirs[type] ? loader.dirs[type] + name : name;
+        loader.load = function (type, names, callback) {
+            var dirs = names,
+                basePath = loader.dirs[type];
 
-            loader.sendRequest(dir, callback);
+            if (typeof names === 'string') {
+                dirs = basePath ? [basePath + names] : [names];
+                names = [names];
+            } else if (Array.isArray(names)) {
+                if (basePath) {
+                    dirs = _.map(names, function (name, index) {
+                        return basePath + name;
+                    });
+                }
+            }
+
+            var filesToLoad = dirs.length,
+                filesLoaded = 0,
+                errCount = 0,
+                files = {};
+            
+            _.each(dirs, function (dir, index) {
+                let name = names[index];
+                loader.sendRequest(dir, function (err, data) {
+                    ++filesLoaded;
+                    if (err) 
+                        ++errCount;
+                    files[name] = {
+                        err: err,
+                        data: data
+                    };
+
+                    if (filesLoaded >= filesToLoad)
+                        callback(errCount, files);
+                }); //onFileLoadFactory(names[index], callback));
+            });
         };
 
         return loader;
