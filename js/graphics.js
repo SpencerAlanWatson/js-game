@@ -3,9 +3,7 @@
     'use strict';
 
     function Graphics(width, height) {
-        var graphics = {
-                gl: null
-            },
+        var graphics = {},
             stats = new Stats();
         stats.setMode(0); // 0: fps, 1: ms
 
@@ -26,7 +24,9 @@
         };
         graphics.getContext = function (canvas) {
             var gl = null,
-                options = {'alpha': false};
+                options = {
+                    'alpha': false
+                };
             try {
                 // Try to grab the standard context. If it fails, fallback to experimental.
                 gl = canvas.getContext("webgl", options) || canvas.getContext("experimental-webgl", options);
@@ -43,8 +43,29 @@
             });
         };
 
-        graphics.screenCanvas = graphics.createCanvas(width, height);
-        graphics.screenContext = graphics.getContext(graphics.screenCanvas
+        graphics.initialize = function () {
+            graphics.screenCanvas = graphics.createCanvas(graphics.width, graphics.height);
+            graphics.screenContext = graphics.getContext(graphics.screenCanvas);
+
+            // Only continue if WebGL is available and working
+
+            if (graphics.screenContext) {
+                // Set clear color to black, fully opaque
+                graphics.screenContext.clearColor(0.0, 0.0, 0.0, 1.0);
+                // Enable depth testing
+                graphics.screenContext.enable(gl.DEPTH_TEST);
+                // Near things obscure far things
+                graphics.screenContext.depthFunc(gl.LEQUAL);
+                // Clear the color as well as the depth buffer.
+                graphics.screenContext.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            }
+            //This is to allow chaining,
+            //that we can create a graphics object and init it in one line.
+            return graphics; 
+        };
+
+
+
         graphics.clearCanvas = function (canvas) {
             --canvas.height;
             ++canvas.height;

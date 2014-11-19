@@ -4,7 +4,7 @@
 
     function Manager(width, height) {
         var manager = {
-            graphics: Game.Graphics(width, height),
+            graphics: Game.Graphics(width, height).initialize(),
             physics: Game.Physics(),
             objects: [],
 
