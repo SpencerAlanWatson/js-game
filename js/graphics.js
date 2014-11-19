@@ -45,20 +45,21 @@
 
         graphics.initialize = function () {
             graphics.screenCanvas = graphics.createCanvas(graphics.width, graphics.height);
-            graphics.gl = graphics.getContext(graphics.screenCanvas);
+            var gl = graphics.getContext(graphics.screenCanvas);
 
             // Only continue if WebGL is available and working
 
-            if (graphics.gl) {
+            if (gl) {
                 // Set clear color to black, fully opaque
-                graphics.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+                gl.clearColor(0.0, 0.0, 0.0, 1.0);
                 // Enable depth testing
-                graphics.gl.enable(gl.DEPTH_TEST);
+                gl.enable(gl.DEPTH_TEST);
                 // Near things obscure far things
-                graphics.gl.depthFunc(gl.LEQUAL);
+                gl.depthFunc(gl.LEQUAL);
                 // Clear the color as well as the depth buffer.
-                graphics.gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             }
+            graphics.gl = gl;
             document.getElementById('canvas-container').appendChild(graphics.screenCanvas);
 
             //This is to allow chaining,
