@@ -45,19 +45,19 @@
 
         graphics.initialize = function () {
             graphics.screenCanvas = graphics.createCanvas(graphics.width, graphics.height);
-            graphics.screenContext = graphics.getContext(graphics.screenCanvas);
+            graphics.gl = graphics.getContext(graphics.screenCanvas);
 
             // Only continue if WebGL is available and working
 
-            if (graphics.screenContext) {
+            if (graphics.gl) {
                 // Set clear color to black, fully opaque
-                graphics.screenContext.clearColor(0.0, 0.0, 0.0, 1.0);
+                graphics.gl.clearColor(0.0, 0.0, 0.0, 1.0);
                 // Enable depth testing
-                graphics.screenContext.enable(gl.DEPTH_TEST);
+                graphics.gl.enable(gl.DEPTH_TEST);
                 // Near things obscure far things
-                graphics.screenContext.depthFunc(gl.LEQUAL);
+                graphics.gl.depthFunc(gl.LEQUAL);
                 // Clear the color as well as the depth buffer.
-                graphics.screenContext.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                graphics.gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             }
             document.getElementById('canvas-container').appendChild(graphics.screenCanvas);
 
@@ -103,18 +103,18 @@
             graphics.renderLoopId = requestAnimationFrame(graphics.renderLoop);
             stats.begin();
             graphics.clearCanvas(graphics.screenCanvas);
-            graphics.drawBatches(graphics.screenContext);
-            graphics.drawBatchless(graphics.screenContext);
+            graphics.drawBatches(graphics.gl);
+            graphics.drawBatchless(graphics.gl);
             stats.end();
         };
         graphics.renderOnce = function () {
             graphics.clearCanvas(graphics.screenCanvas);
-            graphics.drawBatches(graphics.screenContext);
-            graphics.drawBatchless(graphics.screenContext);
+            graphics.drawBatches(graphics.gl);
+            graphics.drawBatchless(graphics.gl);
 
 
-            //graphics.screenContext.fill();
-            //graphics.screenContext.stroke();
+            //graphics.gl.fill();
+            //graphics.gl.stroke();
         }
         graphics.addToBatch = function (batchName, object) {
             var batch = graphics.batchObjects[batchName];
