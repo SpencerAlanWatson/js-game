@@ -16,68 +16,65 @@
 
         loader.sendRequest = function (filePath, callback) {
             //We do not support IE6 or below, so no need for ActiveXObject
-            console.count('sendRequest');
             var req = new XMLHttpRequest();
-            try {
-                req.addEventListener('readystatechange', function (event) {
-                    if (req.readyState === 4) {
-                        if (req.status === 200) {
-                            callback(null, req.responseText);
-                        } else {
-                            callback(req, req.responseText);
-                        }
-                    }
-                });
-                req.open("GET", filePath, true);
-                req.send();
-            } catch (err) {
-                callback(err, req);
-            }
 
+            req.addEventListener('readystatechange', function (event) {
+                console.log(req);
+                if (req.readyState === 4) {
+                    if (req.status === 200)
+                        callback(null, req.responseText);
+                    else
+                        callback(req, req.responseText);
+                }
+            });
+            req.open("GET", filePath, true);
+            req.send();
         };
 
-
-        loader.load = function (type, names, callback) {
-            console.error('loader.load');
-            var dirs = names,
-                basePath = loader.dirs[type];
-
-            if (typeof names === 'string') {
-                dirs = basePath ? [basePath + names] : [names];
-                names = [names];
-            } else if (Array.isArray(names)) {
-                if (basePath) {
-                    dirs = _.map(names, function (name, index) {
-                        return basePath + name;
-                    });
-                }
+        loader.getFilePaths = function (type, names) {
+            var basePath = loader.dirs[type];
+            if (basePath) {
+                return _.map(names, function (name, index) {
+                    return basePath + name;
+                });
+            } else {
+                return [].concat(names);
             }
+        };
 
-            var filesToLoad = dirs.length,
-                filesLoaded = 0,
+        function loadFileFactory(filesToLoad, callback) {
+            var filesLoaded = 0,
                 errCount = 0,
-                files = {},
-                finished = false;
+                files = {};
+
+            return function (err, data, name) {
+
+                ++filesLoaded;
+
+                if (err)
+                ++errCount;
+
+                files[name] = {
+                    err: err,
+                    data: data
+                };
+
+                if (filesLoaded === filesToLoad) {
+                    callback(errCount, files);
+                }
+
+            }
+        }
+        loader.load = function (type, fileNames, callback) {
+
+            //If it is a string, this will make it an array,
+            //if it is an array, it will change nothing.
+            var names = [].concat(fileNames),
+                dirs = loader.getFilePaths(type, names),
+                onFileLoad = loadFileFactory(dirs.length, callback);
 
             _.each(dirs, function (dir, index) {
-                let name = names[index];
-                    
-                loader.sendRequest(dir, function (err, data) {
-                    if (finished) return;
-                    ++filesLoaded;
-                    if (err)
-                    ++errCount;
-                    files[name] = {
-                        err: err,
-                        data: data
-                    };
-
-                    if (!finished && filesLoaded >= filesToLoad) {
-                        finished = true;
-                        callback(errCount, files);
-                    }
-
-                }); //onFileLoadFactory(names[index], callback));
+                loader.sendRequest(dir, _.partialRight(onFileLoad, names[index]));
             });
         };
 
