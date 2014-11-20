@@ -19,12 +19,11 @@
             var req = new XMLHttpRequest();
 
             req.addEventListener('readystatechange', function (event) {
-                console.log(req);
                 if (req.readyState === 4) {
                     if (req.status === 200)
-                        callback(null, req.responseText);
+                        callback(null, req);
                     else
-                        callback(req, req.responseText);
+                        callback(req.status, req);
                 }
             });
             req.open("GET", filePath, true);
@@ -35,7 +34,7 @@
             var req = new XMLHttpRequest();
             req.open("GET", filePath, false);
             req.send();
-            return req.responseText;
+            return req;
         };
 
         loader.getFilePaths = function (type, names) {
@@ -52,22 +51,24 @@
         function loadFileFactory(filesToLoad, callback) {
             var filesLoaded = 0,
                 errCount = 0,
-                files = {};
-
+                results = {
+                    files: {}
+                };
             return function (err, data, name) {
 
                 ++filesLoaded;
 
-                if (err)
-                ++errCount;
+                if (err) {
+                    ++errCount;
+                    if (!results.errors) results.errors = {};
+                    results.errors[name] = data;
+                } else {
+                    results.files[name] = data.responseText;
+                }
 
-                files[name] = {
-                    err: err,
-                    data: data
-                };
 
                 if (filesLoaded === filesToLoad) {
-                    callback(errCount, files);
+                    callback(errCount, results);
                 }
 
             }
@@ -91,13 +92,22 @@
             //if it is an array, it will change nothing.
             var names = [].concat(fileNames),
                 dirs = loader.getFilePaths(type, names),
-                files = {};
-            
+                results = {
+                    files: {}
+                };
+
             _.each(dirs, function (dir, index) {
-                files[names[index]] = loader.sendRequestSync(dir);
+                var req = loader.sendRequestSync(dir),
+                    name = names[index];
+                if (req.status !== 200) {
+                    if(!results.errors) results.errors = {};
+                    results.errors[name] = req;
+                } else {
+                    results.files[name] = req.response;
+                }
                 //loader.sendRequest(dir, _.partialRight(onFileLoad, names[index]));
             });
-            return files;
+            return results;
         };
 
         return loader;
