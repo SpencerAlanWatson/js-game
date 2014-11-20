@@ -30,6 +30,13 @@
             req.open("GET", filePath, true);
             req.send();
         };
+        loader.sendRequestSync = function (filePath) {
+            //We do not support IE6 or below, so no need for ActiveXObject
+            var req = new XMLHttpRequest();
+            req.open("GET", filePath, false);
+            req.send();
+            return req.responseText;
+        };
 
         loader.getFilePaths = function (type, names) {
             var basePath = loader.dirs[type];
@@ -78,9 +85,24 @@
             });
         };
 
+        loader.loadSync = function (type, fileNames) {
+
+            //If it is a string, this will make it an array,
+            //if it is an array, it will change nothing.
+            var names = [].concat(fileNames),
+                dirs = loader.getFilePaths(type, names),
+                files = {};
+            
+            _.each(dirs, function (dir, index) {
+                files[names[index]] = loader.sendRequestSync(dir);
+                //loader.sendRequest(dir, _.partialRight(onFileLoad, names[index]));
+            });
+            return files;
+        };
+
         return loader;
     };
 
     global.Game = global.Game || {};
-    global.Game.FileLoader = FileLoader;
+    global.Game.FileLoader = FileLoader();
 }(this));
