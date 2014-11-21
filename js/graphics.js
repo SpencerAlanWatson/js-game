@@ -58,6 +58,8 @@
         graphics.start = function () {
             graphics.running = true;
             cancelAnimationFrame(graphics.renderLoopId);
+            graphics.screenContext.strokeStyle = "#ffffff";
+            graphics.screenContext.fillStyle = "#ffffff";
             graphics.renderLoopId = requestAnimationFrame(graphics.renderLoop);
         };
         graphics.stop = function () {

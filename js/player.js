@@ -10,7 +10,7 @@
             radius: 25,
             pointerRadius: 4,
             rotation: 0,
-            style: style || "white",
+            style: style || "#ffffff",
             lastFire: -Infinity,
             slowestFire: 50,
             mass: 1,
@@ -30,7 +30,7 @@
 
                 context.save();
                 context.strokeStyle = player.style;
-                context.fillStyle = player.style;
+
                 return player.setupCache(new Path2D());
 
 
