@@ -1,1 +1,1 @@
-["vendor/angular.js", "vendor/jquery-2.1.1.js", "vendor/bootstrap.js", "vendor/stats.js", "wall.js", "controls.js", "graphics.js", "physics.js", "player.js", "manager.js", "projectile.js", "point.js", "ai.js", "main.js"]
+["vendor/angular.js", "vendor/bootstrap.js", "vendor/stats.js", "wall.js", "controls.js", "graphics.js", "physics.js", "player.js", "manager.js", "projectile.js", "point.js", "ai.js", "main.js"]
