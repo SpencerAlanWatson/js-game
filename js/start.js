@@ -152,14 +152,15 @@
 
                     var filePaths = Game.FileLoader.getFilePaths('js', scriptNames);
                     var toLoad = filePaths.length,
-                        doneLoading = 0;
+                        doneLoading = 0,
+                        Done = function (path, event) {
+                            ++doneLoading;
+                            if (doneLoading >= toLoad) {
+                                resolve(container);
+                            }
+                        };
 
-                    function Done(path, event) {
-                        ++doneLoading;
-                        if (doneLoading >= toLoad) {
-                            resolve(container);
-                        }
-                    };
+
                     _.each(filePaths, function (path) {
                         console.log(path);
 
