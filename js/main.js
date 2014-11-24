@@ -2,7 +2,10 @@
  (function (global) {
      'use strict';
      //$(document).ready(
-     document.addEventListener('readystatechange', function (event) {
+
+     document.addEventListener('readystatechange', StartUp);
+
+     function StartUp() {
          var Game = global.Game,
              manager = Game.Manager(window.innerWidth, window.innerHeight);
 
@@ -14,14 +17,11 @@
 
              manager.add(p, 'player');
 
-/*             if (i > 0) {
+             /*             if (i > 0) {
                  let ai = Game.TestAI(i);
                  ai.setupListeners(manager.eventEmitters);
              }*/
          }
-
-
-
          /*manager.add(p1, 'player');
          manager.add(p2, 'player');
          manager.add(p3, 'player');
@@ -29,17 +29,9 @@
          manager.add(p5, 'player');
          manager.add(p6, 'player');
          manager.add(p7, 'player');*/
-
-
-
-
          manager.start();
-
-
          //global.Game.p1 = p1;
          //global.Game.p2 = p2;
-
-
          var gameApp = angular.module('game', []);
          gameApp.controller('controllers', ['$scope', '$window', '$document',
              function ($scope, $window, $document) {
@@ -116,8 +108,12 @@
                  controls.addEventListener('control-connected', $scope.onControllerConnect);
 
          }]);
+         var angularDom = document.getElementById('angular-bootstrap');
 
-         angular.bootstrap(document.body, ['game']);
-
-     });
+         try {
+             angular.bootstrap(angularDom, ['game']);
+         } catch (e) {
+             console.error(e);
+         }
+     };
  }(this));

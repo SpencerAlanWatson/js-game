@@ -40,76 +40,68 @@
 
     <div id="canvas-container">
     </div>
-    <section ng-controller="controllers" class="angular-container">
-        <div id="alert-container">
-        </div>
-        <div ng-show="showStats" id="stats-container">
-        </div>
-        <!-- Modal -->
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
-                        </button>
-                        <h4 class="modal-title" id="myModalLabel">Controls</h4>
-                    </div>
-                    <div class="modal-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th ng-repeat="playerId in players">Player {{playerId}}</th>
-                                    <!--<th>Player 2</th>-->
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr ng-repeat="gamepadIndex in gamepads">
-                                    <th>{{gamepadIndex}}: {{$parent.gamepadsId[gamepadIndex]}}</th>
-                                    <td ng-repeat="playerId in $parent.players">
-                                        <input type="checkbox" ng-model="$parent.$parent.bindings[$parent.gamepadIndex][playerId]" ng-change="$parent.$parent.toggleBinding($parent.gamepadIndex, playerId)">
-                                    </td>
-                                    <!--<td>
+    <section id="angular-bootstrap">
+        <section ng-controller="controllers" class="angular-container">
+            <div id="alert-container">
+            </div>
+            <div ng-show="showStats" id="stats-container">
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                            </button>
+                            <h4 class="modal-title" id="myModalLabel">Controls</h4>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th ng-repeat="playerId in players">Player {{playerId}}</th>
+                                        <!--<th>Player 2</th>-->
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="gamepadIndex in gamepads">
+                                        <th>{{gamepadIndex}}: {{$parent.gamepadsId[gamepadIndex]}}</th>
+                                        <td ng-repeat="playerId in $parent.players">
+                                            <input type="checkbox" ng-model="$parent.$parent.bindings[$parent.gamepadIndex][playerId]" ng-change="$parent.$parent.toggleBinding($parent.gamepadIndex, playerId)">
+                                        </td>
+                                        <!--<td>
                                         <input type="checkbox" ng-model="$parent.bindings[gamepadIndex][1]" ng-true-value="2" ng-false-value="null" ng-model-option="">
                                     </td>-->
-                                    <!-- <td>
+                                        <!-- <td>
                                         <input type="checkbox" 
                                                ng-model="$parent.controllerBinder(gamepadIndex, 1)" ng-change="$parent.toggleBinding(gamepadIndex, 1)">
                                     </td>
                                     <td>
                                         <input type="checkbox" ng-model="$parent.bindings[gamepadIndex].indexOf(2) !== -1" ng-change="$parent.toggleBinding(gamepadIndex, 2)">
                                     </td>-->
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
     </section>
     <section id="js-container">
         <script src="js/vendor/jquery-2.1.1.js"></script>
-        <script async src="js/vendor/angular.js"></script>
-        <script async defer src="js/vendor/bootstrap.js"></script>
-        <script async src="js/vendor/stats.js"></script>
-        <script async src="js/vendor/lodash.js"></script>
-        <script async src="js/vendor/EventDispatcher.js"></script>
-        <script type="application/javascript;version=1.7" async src="js/file-loader.js"></script>
-        <script type="application/javascript;version=1.7" async src="js/wall.js"></script>
-        <script type="application/javascript;version=1.7" async src="js/controls.js"></script>
-        <script type="application/javascript;version=1.7" async src="js/graphics.js"></script>
-        <script type="application/javascript;version=1.7" async src="js/physics.js"></script>
-        <script type="application/javascript;version=1.7" async src="js/player.js"></script>
-        <script type="application/javascript;version=1.7" async src="js/manager.js"></script>
-        <script type="application/javascript;version=1.7" async src="js/projectile.js"></script>
-        <script type="application/javascript;version=1.7" async src="js/point.js"></script>
-        <script type="application/javascript;version=1.7" async src="js/ai.js"></script>
-        <script type="application/javascript;version=1.7" async defer src="js/main.js"></script>
+        <script src="js/vendor/lz-string.js"></script>
+        <script src="js/vendor/lodash.js"></script>
+        <script src="js/file-loader.js"></script>
+        <script src="js/vendor/EventDispatcher.js"></script>
+        <script src="js/start.js"></script>
         <!-- <script async src="game.min.js"></script>-->
+
     </section>
 </body>
 

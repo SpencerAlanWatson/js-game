@@ -10,7 +10,8 @@
                 'shader': 'shaders/',
                 'css': 'css/',
                 'img': 'imgs/',
-                'font': 'fonts/'
+                'font': 'fonts/',
+                'html': 'html/'
             }
         };
 
@@ -53,8 +54,9 @@
             }
         };
 
-        function loadFileFactory(filesToLoad, resolve, reject) {
+        function loadFileFactory(filesToLoad, names, resolve, reject) {
             var results = {
+                names: names, 
                 files: _.create(null),
                 errCount: 0,
                 filesLoaded: 0
@@ -96,9 +98,9 @@
             return new Promise(function (resolve, reject) {
                 var names = [].concat(fileNames),
                     dirs = loader.getFilePaths(type, names),
-                    onFileLoad = loadFileFactory(dirs.length, resolve, reject);
+                    onFileLoad = loadFileFactory(dirs.length, names, resolve, reject);
                 _.each(dirs, function (dir, index) {
-                    let name = names[index];
+                    var name = names[index];
                     loader.sendRequest(dir)
                         .then(_.partialRight(onFileLoad[0], name),
                             _.partialRight(onFileLoad[1], name));
@@ -114,6 +116,7 @@
             var names = [].concat(fileNames),
                 dirs = loader.getFilePaths(type, names),
                 results = {
+                    names: names,
                     files: _.create(null),
                     errCount: 0,
                     filesLoaded: 0
