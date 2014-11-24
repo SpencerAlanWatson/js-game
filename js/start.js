@@ -3,22 +3,29 @@
     'use strict';
     //$(document).ready(
     var scriptType = navigator.userAgent.indexOf('Firefox') === -1 ? 'application/javascript' : 'application/javascript;version=1.7',
-        dbVersion = 8,
+        dbVersion = 10,
         onDBError;
 
     function StartGame() {
-        var openReq = global.indexedDB.open("game-scripts", dbVersion),
-            scriptContainer = document.getElementById('js-container'),
+        //var openReq = global.indexedDB.open("game-scripts", dbVersion),
+        var scriptContainer = document.getElementById('js-container'),
             loadedScriptsContainer = createLoadedContainer();
 
         scriptContainer.appendChild(loadedScriptsContainer);
-        onDBError = onDBErrorFactory(loadedScriptsContainer);
+        downloadScripts(loadedScriptsContainer).then(function () {
+            sendStartEvent();
 
 
-        openReq.addEventListener('error', onDBError);
+        }, function (errors) {
+            throw errors;
+        });
+        //onDBError = onDBErrorFactory(loadedScriptsContainer);
+
+
+        /*openReq.addEventListener('error', onDBError);
 
         openReq.addEventListener('upgradeneeded', function (event) {
-            setupDB(fileLoader, loadedScriptsContainer, openReq.result);
+            setupDB(openReq.result);
             downloadScripts(loadedScriptsContainer)
                 .then(function (container) {
 
@@ -34,21 +41,21 @@
         openReq.addEventListener('success', function (event) {
             //loadScriptsFromDB(loadedScriptsContainer, openReq.result);
             downloadScripts(loadedScriptsContainer).then(function (filePaths) {
-                /*console.log('success Download', scriptObjects);
+                    console.log('success Download', scriptObjects);
 
                     appendScriptsToDom(scriptObjects, loadedScriptsContainer);
                     sendStartEvent();
-                    storeScriptsInDB(db, new Date(), scriptObjects);*/
+                    storeScriptsInDB(db, new Date(), scriptObjects);
                 sendStartEvent();
 
 
             }, function (errors) {
                 throw errors;
             });
-        });
+        });*/
 
         //downloadScripts(fileLoader, container, null);
-
+        
     };
 
     function createLoadedContainer() {
@@ -79,7 +86,7 @@
                 })
             };
         openReq.addEventListener('upgradeneeded', function (event) {
-            setupDB(fileLoader, loadedScriptsContainer, openReq.result);
+            setupDB(openReq.result);
             dlScripts(openReq.result);
         });
         openReq.addEventListener('success', function () {
@@ -240,8 +247,10 @@
         });
     };
 
-    function setupDB(fileLoader, container, db) {
-        db.addEventListener('error', onDBError);
+    function setupDB(db) {
+        db.addEventListener('error', function (event) {
+            throw event;
+        });
         // Create an objectStore for this database   
         db.deleteObjectStore('game-scripts');
         var objectStore = db.createObjectStore("game-scripts", {
