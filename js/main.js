@@ -108,7 +108,7 @@
                  controls.addEventListener('control-connected', $scope.onControllerConnect);
 
          }]);
-         var angularDom = document.getElementById('angular-bootstrap'),
+         var angularDom = document.getElementById('angular-bootstrap');
 
          try {
              angular.bootstrap(angularDom, ['game']);
