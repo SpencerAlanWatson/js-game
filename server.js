@@ -2,6 +2,7 @@
 var express = require('express'),
     app = express(),
     fs = require('fs'),
+    _ = require('lodash'),
     buildify = require('buildify');
 
 
@@ -23,11 +24,40 @@ var server = app.listen(3000, function () {
 
 });
 
-var io = require('socket.io')(server);
+function multiplayer() {
+    var io = require('socket.io')(server),
+        players = [],
+        totalPlayers = 2,
+        inputValues = {};
 
-io.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
-});
+
+    io.on('connection', function (socket) {
+        socket.on('initialize', function (data, fn) {
+            var results = {};
+            if (players.length <= totalPlayers) {
+                results.playerNumber = players.length;
+                results.index = _.uniqueId('player_');
+            }
+
+            results.players = players;
+            fn(results);
+            var playerObj = {
+                playerNumber: results.playerNumber,
+                index: results.index
+            };
+            socket.emit('new player', playerObj);
+            players.push(playerObj);
+            inputValues[playerObj.index] = {};
+        });
+        socket.emit('news', {
+            hello: 'world'
+        });
+        socket.on('send input', function (data) {
+            inputValues[data.index] = data.input;
+        });
+        socket.on('get input', function (data, fn) {
+            fn(inputValues[data]);
+        });
+    });
+}
+multiplayer();

@@ -20,5 +20,6 @@
     "client/js/point.js",
     "client/js/ai.js",
     "client/js/network.js",
+    "client/js/utils.js",
     "client/js/main.js"
 ]

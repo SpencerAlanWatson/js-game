@@ -292,6 +292,9 @@
             inputValue.pressed = settings.pressed !== undefined ? settings.pressed : inputValue.pressed;
             inputValue.released = settings.released !== undefined ? settings.released : inputValue.released;
         }
+        controls.setAllInput = function (controllerId, inputs) {
+            controls.controllerInputValues[controllerId] = inputs;
+        }
         controls.getInput = function (controllerId, inputName) {
             return controls.controllerInputValues[controllerId][inputName];
         }
