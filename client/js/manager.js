@@ -1,5 +1,5 @@
 ;
-(function (global) {
+(function (global, undefined) {
     'use strict';
 
     function Manager(width, height) {

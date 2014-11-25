@@ -1,0 +1,24 @@
+[
+    "client/js/vendor/jquery-2.1.1.js",
+    "client/js/vendor/lz-string.js",
+    "client/js/vendor/lodash.js",
+    "client/js/file-loader.js",
+    "client/js/vendor/EventDispatcher.js",
+
+    "client/js/vendor/angular.js",
+    "client/js/vendor/bootstrap.js",
+    "client/js/vendor/stats.js",
+    "client/js/vendor/socket.io.js",
+    
+    "client/js/wall.js",
+    "client/js/controls.js",
+    "client/js/graphics.js",
+    "client/js/physics.js",
+    "client/js/player.js",
+    "client/js/manager.js",
+    "client/js/projectile.js",
+    "client/js/point.js",
+    "client/js/ai.js",
+    "client/js/network.js",
+    "client/js/main.js"
+]

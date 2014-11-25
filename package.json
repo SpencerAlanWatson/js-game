@@ -1,18 +1,17 @@
 {
-    "name": "js-game",
-    "version": "0.2.0",
-    "description": "A non-descript game made in Javascript and HTML5",
-    "main": "server.js",
-    "private": true,
-
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/SpencerAlanWatson/js-game.git"
-    },
-    "keywords": [
+  "name": "js-game",
+  "version": "0.2.0",
+  "description": "A non-descript game made in Javascript and HTML5",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SpencerAlanWatson/js-game.git"
+  },
+  "keywords": [
     "Javascript",
     "Nodejs",
     "HTML5",
@@ -21,10 +20,18 @@
     "EMCAScript6",
     "Javascript1.7"
   ],
-    "author": "Spencer Alan Watson",
-    "license": "Apache V2",
-    "bugs": {
-        "url": "https://github.com/SpencerAlanWatson/js-game/issues"
-    },
-    "homepage": "https://github.com/SpencerAlanWatson/js-game"
+  "author": "Spencer Alan Watson",
+  "license": "Apache V2",
+  "bugs": {
+    "url": "https://github.com/SpencerAlanWatson/js-game/issues"
+  },
+  "homepage": "https://github.com/SpencerAlanWatson/js-game",
+  "dependencies": {
+    "buildify": "^0.4.0",
+    "express": "^4.10.4",
+    "lodash": "^2.4.1",
+    "lz-string": "^1.3.3",
+    "socket.io": "^1.2.1",
+    "uglify-js": "^2.4.15"
+  }
 }
