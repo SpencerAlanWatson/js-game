@@ -23,6 +23,7 @@
             hpBarStyles: ["white", "blue", "lightgreen", "darkred", 'yellow'],
             tao: Math.PI * 2
         });
+        player.hpBarRadius = player.radius -2;
         player.uid = _.uniqueId(player.tag);
 
         if (Path2D !== undefined) {
@@ -30,7 +31,12 @@
 
                 context.save();
                 context.strokeStyle = player.style;
-
+                context.fillStyle = player.style;
+                context.lineWidth = 2.5;
+                context.font = player.hpBarRadius + "px Roboto Condensed";
+                context.textAlign = 'center';
+                context.textBaseline = "middle";
+                context.beginPath();
                 return player.setupCache(new Path2D());
 
 
@@ -38,9 +44,9 @@
             };
             player.setupCache = function (path2d) {
 
-                path2d.arc(0, 0, player.radius, 0, Math.PI * 2);
-                //path2d.moveTo(player.radius / 4, 0);
-                //path2d.arc(0, 0, player.radius / 4, 0, (player.tao * player.health / player.maxHealth));
+                //path2d.arc(0, 0, player.radius, 0, Math.PI * 2);
+                //path2d.moveTo(player.hpBarRadius, 0);
+                //path2d.arc(0, 0, player.hpBarRadius, 0, (player.tao * player.health / player.maxHealth));
 
                 path2d.moveTo(-player.radius, 0);
 
@@ -56,54 +62,42 @@
                 path2d = path2d || player.cache;
                 // ctx.translate(-60, -25);
                 context.stroke(path2d);
-                context.moveTo(player.radius / 4, 0);
+                context.moveTo(player.hpBarRadius, 0);
                 if (player.health > 0) {
                     let perc = player.health % 100 / 100;
                     if (perc === 0) {
 
 
                         context.strokeStyle = player.hpBarStyles[player.health / 100];
-                        context.arc(0, 0, player.radius / 4, 0, player.tao);
-                        context.stroke();
+                        context.arc(0, 0, player.hpBarRadius, 0, player.tao, false);
                     } else if (player.health / 100 < 1) {
                         context.strokeStyle = player.hpBarStyles[1];
                         context.beginPath();
-                        context.arc(0, 0, player.radius / 4, 0, player.tao * perc, false);
+                        context.arc(0, 0, player.hpBarRadius, 0, player.tao * perc, false);
                         context.closePath();
-                        context.stroke();
                     } else {
                         let endAngle = player.tao * perc;
 
                         context.strokeStyle = player.hpBarStyles[Math.floor(player.health / 100)];
+
                         context.beginPath();
-                        context.arc(0, 0, player.radius / 4, 0, endAngle, true);
+                        context.arc(0, 0, player.hpBarRadius, 0, endAngle, true);
                         context.closePath();
                         context.stroke();
-                        //console.log(perc, Math.ceil(player.health / 100), Math.floor(player.health / 100));
                         context.beginPath();
                         context.strokeStyle = player.hpBarStyles[Math.ceil(player.health / 100)];
-
-                        context.arc(0, 0, player.radius / 4, 0, endAngle, false);
+                        context.arc(0, 0, player.hpBarRadius, 0, endAngle, false);
                         context.closePath();
 
-                        context.stroke();
 
 
                     }
-                }
-                /*for (var hp = 0, max = player.health / 100; hp < max; hp++) {
-                    context.strokeStyle = player.hpBarStyles[hp];
-                    context.arc(0, 0, player.radius / 4, 0, player.tao);
                     context.stroke();
+
                 }
-                if (player.health > 0 && player.health < player.maxHealth) {
-                    context.strokeStyle = player.hpBarStyles[hp];
-                    context.arc(0, 0, player.radius / 4, 0, player.tao * (max % 1));
-                    context.stroke();
-                }*/
                 context.strokeStyle = player.style;
-
-
+                context.beginPath();
+                context.fillText(player.health, 0, 0);
                 context.restore();
             };
             player.endBatchDraw = function (context) {
@@ -127,9 +121,9 @@
                 context.moveTo(player.x + frontX, player.y + frontY);
 
                 context.arc(player.x, player.y, player.radius, player.rotation, player.rotation + player.tao);
-                context.moveTo(player.x + frontX / 4, player.y + frontY / 4);
+                context.moveTo(player.x + frontX / 3, player.y + frontY / 3);
 
-                context.arc(player.x, player.y, player.radius / 4, player.rotation, player.rotation + (player.tao * player.health / player.maxHealth));
+                context.arc(player.x, player.y, player.hpBarRadius, player.rotation, player.rotation + (player.tao * player.health / player.maxHealth));
 
                 context.moveTo(
                     player.x - frontX,

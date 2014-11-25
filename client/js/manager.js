@@ -7,8 +7,10 @@
             graphics: Game.Graphics(width, height),
             physics: Game.Physics(),
             objects: [],
+            playerCount: 0
 
         };
+        Game.manager = manager;
         manager.controls = Game.Controls(manager.graphics.screenCanvas, manager.graphics.screenCanvas.parentElement);
         manager.eventEmitters = {
             graphics: manager.graphics,
@@ -33,6 +35,8 @@
             manager.objects.push(object);
             manager.addToGraphics(object, object.batchName ? object.batchName : false);
         }
+        
+        
 
         function remove(object) {
             let undefined;
@@ -57,6 +61,9 @@
         manager.add = function (object) {
             _.defer(add, object);
         }
+        manager.addPlayer = function(x, y) {
+            _.defer(add, Game.Player(manager.playerCount++, x, y));
+        };
         manager.remove = function (object) {
             _.defer(remove, object);
         };

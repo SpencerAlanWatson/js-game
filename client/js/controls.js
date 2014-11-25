@@ -22,10 +22,10 @@
         };
     }
 
+
     function defaultKeyboardBindings() {
         return {
             id: 'keyboard&mouse',
-            index: -1,
             //w
             87: '+moveV',
             //up-arrow
@@ -54,23 +54,32 @@
         };
     }
 
+    function makeButtonAxisBinding(positiveButton, negativeButton) {
+        return {
+            'pos': positiveButton,
+            'neg': negativeButton
+        };
+    }
+
     function defaultKeyboardBindingsNew() {
         return {
-            id: 'keyboard&mouse',
-            index: -1,
+            id: 'Keyboard and Mouse',
             //w
-            '-moveV': [87, 38],
+            // '-moveV': [87, 38],
+            'moveV': [makeButtonAxisBinding(83, 87), makeButtonAxisBinding(40, 38)],
 
             //s
-            '+moveV': [83, 40],
+            //'+moveV': [83, 40],
 
 
             //a
-            '-moveH': [65, 37],
+            //'-moveH': [65, 37],
+            'moveH': [makeButtonAxisBinding(68, 65), makeButtonAxisBinding(39, 37)],
+
 
 
             //d
-            '+moveH': [68, 39],
+            //  '+moveH': [68, 39],
 
             'fire': ['mouse0'],
             //i
@@ -83,7 +92,6 @@
     function defaultControllerBindings(controllerId, index) {
         return {
             id: controllerId,
-            index: index,
             //left stick x
             'a0': 'moveH',
 
@@ -105,7 +113,6 @@
     function defaultControllerBindingsNew(controllerId, index) {
         return {
             id: controllerId,
-            index: index,
             //left stick x
             'moveH': ['a0'],
 
@@ -125,6 +132,15 @@
     function Controls(canvas, canvasContainer) {
 
         var controls = {
+                inputNames: [
+                    'moveV',
+                    'moveH',
+                    'lookV',
+                    'lookH',
+                    'fire',
+                    'showStats',
+                    'showControls'
+                ],
                 controllerInputValues: {
                     '-1': InputValues(),
                     //'0': InputValues()
@@ -146,6 +162,7 @@
                 gamepadsId: [],
                 lastTimestamp: global.performance.now(),
                 interval: 0,
+                bindingDB: null
             },
 
             domMousePositionX = 0,
@@ -163,6 +180,103 @@
 
         EventDispatcher.prototype.apply(controls);
         controls.InputValue = InputValue;
+
+        controls.addBindingToController = function (controllerIndex, inputName, buttonName) {
+            if (controls.controllerBindings[controllerIndex]) {
+                controls.controllerBindings[controllerIndex][inputName].push(buttonName);
+            }
+        };
+        controls.removeBindingFromController = function (controllerIndex, inputName, buttonName) {
+            if (controls.controllerBindings[controllerIndex]) {
+                if (buttonName) {
+                    let buttonIndex = controls.controllerBindings[controllerIndex][inputName].indexOf(buttonName);
+                    if (buttonIndex !== -1) {
+                        delete controls.controllerBindings[controllerIndex][inputName][buttonIndex];
+                        controls.controllerBindings[controllerIndex][inputName].splice(buttonIndex, 1);
+
+                    }
+                } else {
+                    delete controls.controllerBindings[controllerIndex][inputName];
+                    controls.controllerBindings[controllerIndex][inputName] = [];
+                }
+            }
+        };
+        controls.openDatabase = function (callback) {
+            if (controls.bindingDB) {
+                controls.bindingDB.close();
+            }
+            controls.bindingDB = window.indexedDB.open('Game Controls');
+            // This event handles the event whereby a new version of the database needs to be created
+            // Either one has not been created before, or a new version number has been submitted via the
+            // window.indexedDB.open line above
+            controls.bindingDB.addEventListener('upgradeneeded', function (event) {
+                var db = event.target.result;
+
+                db.onerror = function (event) {
+                    //note.innerHTML += '<li>Error loading database.</li>';
+                    throw event;
+                };
+
+                // Create an objectStore for this database
+
+                var objectStore = db.createObjectStore("bindings", {
+                    keyPath: "id"
+                });
+
+                // define what data items the objectStore will contain
+                _.each(controls.inputNames, function (inputName) {
+                    objectStore.createIndex(inputName, inputName, {
+                        unique: false
+                    });
+                });
+
+            });
+            controls.bindingDB.addEventListener('success', function (event) {
+                controls.bindingDB = controls.bindingDB.result;
+                callback(controls.bindingDB);
+            });
+        };
+        controls.saveControllerBindings = function (controllerIndex, callback) {
+            if (controls.controllerBindings[controllerIndex]) {
+                controls.openDatabase(function (db) {
+                    var transaction = db.transaction(["bindings"], "readwrite");
+                    transaction.addEventListener('error', function (event) {
+                        throw event;
+                    });
+                    var objectStore = transaction.objectStore("bindings");
+                    // add our newItem object to the object store
+                    var objectStoreRequest = objectStore.add(controls.controllerBindings[controllerIndex]);
+                    objectStoreRequest.addEventListener('success', function (event) {
+                        callback(event);
+                    });
+
+                    objectStoreRequest.addEventListener('error', function (event) {
+                        throw event;
+                    });
+                });
+
+            }
+        };
+        controls.loadControllerBindings = function (controllerIndex, controllerId, callback) {
+            controls.openDatabase(function (db) {
+                var transaction = db.transaction(["bindings"], "readwrite");
+                transaction.addEventListener('error', function (event) {
+                    throw event;
+                });
+                var objectStore = transaction.objectStore("bindings");
+                // add our newItem object to the object store
+                var objectStoreRequest = objectStore.get(controllerId);
+                objectStoreRequest.addEventListener('success', function (event) {
+                    var myRecord = objectStoreRequest.result;
+                    controls.controllerBindings[controllerIndex] = myRecord;
+                    callback(myRecord);
+                });
+                objectStoreRequest.addEventListener('error', function (event) {
+                    throw event;
+                });
+            });
+        };
+
 
         /**
          * Set's the value of an input for a controller
@@ -214,11 +328,23 @@
             }
         };
         controls.addController = function (controller, isCustom) {
-                controls.gamepadsConnected.push(controller.index);
-                controls.gamepadsId[controller.index] = controller.id;
+            controls.gamepadsConnected.push(controller.index);
+            controls.gamepadsId[controller.index] = controller.id;
 
-                controls.controllerInputValues[controller.index] = InputValues();
-                controls.controllerToPlayer[controller.index] = [];
+            controls.controllerInputValues[controller.index] = InputValues();
+            controls.controllerToPlayer[controller.index] = [];
+            for (let i = 0, noPlayer = true; i < Game.manager.playerCount; ++i) {
+                let noController = _.all(controls.controllerToPlayer, function (players, controllerIndex) {
+                    return !players[i];
+                });
+                if (noController && noPlayer) {
+                    controls.controllerToPlayer[controller.index][i] = true;
+                    noPlayer = false;
+                } else {
+                    controls.controllerToPlayer[controller.index][i] = false;
+
+                }
+            }
             if (!isCustom) {
                 controls.controllerBindings[controller.index] = defaultControllerBindingsNew();
             }
@@ -283,7 +409,23 @@
                     input: inputValues,
                     mouseCoords: mouseCoords
                 });
+
             });
+
+            controls.dispatchEvent({
+                type: 'control-tick-all',
+                controls: controls,
+                timestamp: timestamp,
+                lastTimestamp: controls.lastTimestamp,
+                tickDelta: tickDelta,
+                keysPressed: controls.keysPressed,
+                keysReleased: controls.keysReleased,
+                gamepads: gamepads,
+                //controllerId: bindings.id,
+                mouseCoords: mouseCoords
+            });
+            controls.keysReleased.clear();
+
 
 
             controls.lastTimestamp = timestamp;
@@ -291,41 +433,47 @@
             controls.tickId = setTimeout(controls.controlTick, controls.interval);
 
         };
+        controls.isAxisName = function (buttonCode) {
+            return typeof buttonCode === 'string' && buttonCode[0] === 'a';
+        };
+        controls.getValue = function getValue(gamepad, buttonCode) {
+            if (typeof buttonCode === 'object') {
+                return getValue(gamepad, buttonCode.pos) - getValue(gamepad, buttonCode.neg);
+            } else if (controls.isAxisName(buttonCode)) {
+                return gamepad.axes[buttonCode.substr(1)];
+            }
+            return gamepad.buttons[buttonCode].value;
+        };
         controls.keyboardTick = function (playerIds, controllerIndex, bindings, inputValues) {
-            _.each(bindings, function (keyCodes, inputName) {
+            _.each(bindings, function (keyObjects, inputName) {
                 if (inputName === 'id' || inputName === 'index')
                     return;
 
-                var inputProperName,
-                    pressed = _.any(keyCodes, function (keyCode) {
+                var value = Game.Math.Clamp(_.reduce(keyObjects, function getValue(sum, keyCode) {
+                        if (typeof keyCode === 'object') {
+                            return sum + getValue(0, keyCode.pos) - getValue(0, keyCode.neg);
+                        }
+                        return sum + (controls.keysPressed.has(keyCode) ? 1 : 0);
+                    }, 0), -1, 1),
+
+                    pressed = _.any(keyObjects, function isPressed(keyCode) {
+                        if (typeof keyCode === 'object') {
+                            return isPressed(keyCode.pos) || isPressed(keyCode.neg);
+                        }
                         return controls.keysPressed.has(keyCode)
                     }),
-                    released = _.any(keyCodes, function (keyCode) {
+                    released = _.any(keyObjects, function isReleased(keyCode) {
+                        if (typeof keyCode === 'object') {
+                            return isReleased(keyCode.pos) || isReleased(keyCode.neg);
+                        }
                         return controls.keysReleased.has(keyCode)
                     });
-
-                if (inputName[0] === '+' || inputName[0] === '-') {
-                    inputProperName = inputName.substr(1);
-                } else {
-                    inputProperName = inputName;
-                }
-                inputValues[inputProperName].pressed = pressed;
-                inputValues[inputProperName].released = released;
-
-                if (pressed) {
-                    if (inputName[0] === '-') {
-                        inputValues[inputProperName].value = -1;
-                    } else {
-                        inputValues[inputProperName].value = 1;
-
-                    }
-
-                } else if (released) {
-                    inputValues[inputProperName].value = 0.0;
-                }
+                inputValues[inputName].value = value;
+                inputValues[inputName].pressed = pressed;
+                inputValues[inputName].released = released;
 
             });
-            controls.keysReleased.clear();
+            //controls.keysReleased.clear();
         };
         controls.gamepadTick = function (gamepad, playerIds, controllerIndex, bindings, inputValues) {
             if (!gamepad)
@@ -333,33 +481,34 @@
             _.each(bindings, function (buttonCodes, inputName) {
                 if (inputName === 'id' || inputName === 'index')
                     return;
-                let value = _.max(buttonCodes, function (buttonCode) {
-                        if (("" + buttonCode)[0] === 'a') {
-                            return gamepad.axes[buttonCode.substr(1)];
-                        } else {
-                            return gamepad.buttons[buttonCode].value;
-                        }
-                    }),
-                    pressed = _.any(buttonCodes, function (buttonCode) {
-                        if (("" + buttonCode)[0] === 'a') {
+                let value = Game.Math.Clamp(_.reduce(buttonCodes, function (sum, buttonCode) {
+                        return sum + controls.getValue(gamepad, buttonCode);
+                    }, 0), -1, 1),
+                    pressed = _.any(buttonCode, function isPressed(buttonCode) {
+
+                        if (typeof buttonCode === 'object') {
+                            return isPressed(buttonCode.pos) || isPressed(buttonCode.neg);
+                        } else if (controls.isAxisName(buttonCode)) {
                             return gamepad.axes[buttonCode.substr(1)] !== 0;
                         } else {
                             return gamepad.buttons[buttonCode].pressed;
                         }
                     }),
-                    released = _.any(buttonCodes, function (buttonCode) {
-                        if (("" + buttonCode)[0] === 'a') {
+                    released = _.any(buttonCodes, function isReleased(buttonCode) {
+                        if (typeof buttonCode === 'object') {
+                            return isReleased(buttonCode.pos) || isReleased(buttonCode.neg);
+                        } else if (controls.isAxisName(buttonCode)) {
                             if (inputValues[inputName].pressed && gamepad.axes[buttonCode.substr(1)] === 0)
                                 return true;
                         } else {
-                            if (inputValues[inputName].pressed && !gamepad.buttons[buttonCode])
+                            if (inputValues[inputName].pressed && !gamepad.buttons[buttonCode].pressed)
                                 return true;
                         }
                         return false;
                     });
                 inputValues[inputName].pressed = pressed;
                 inputValues[inputName].released = released;
-                inputValues[inputName].value = ("" + value)[0] === 'a' ? gamepad.axes[value.substr(1)] : gamepad.buttons[value].value;
+                inputValues[inputName].value = value;
 
             });
         };
