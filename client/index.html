@@ -56,37 +56,112 @@
                             <h4 class="modal-title" id="myModalLabel">Controls</h4>
                         </div>
                         <div class="modal-body">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th ng-repeat="playerId in players">Player {{playerId}}</th>
-                                        <!--<th>Player 2</th>-->
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="gamepadIndex in gamepads">
-                                        <th>{{gamepadIndex}}: {{$parent.gamepadsId[gamepadIndex]}}</th>
-                                        <td ng-repeat="playerId in $parent.players">
-                                            <input type="checkbox" ng-model="$parent.$parent.bindings[$parent.gamepadIndex][playerId]" ng-change="$parent.$parent.toggleBinding($parent.gamepadIndex, playerId)">
-                                        </td>
-                                        <!--<td>
-                                        <input type="checkbox" ng-model="$parent.bindings[gamepadIndex][1]" ng-true-value="2" ng-false-value="null" ng-model-option="">
-                                    </td>-->
-                                        <!-- <td>
-                                        <input type="checkbox" 
-                                               ng-model="$parent.controllerBinder(gamepadIndex, 1)" ng-change="$parent.toggleBinding(gamepadIndex, 1)">
+                            <div role="tabpanel">
+
+                                <!-- Nav tabs -->
+                                <ul class="nav nav-tabs" role="tablist">
+
+                                    <li role="presentation" ng-repeat="gamepadIndex in gamepads">
+                                        <a ng-href=".controller-{{gamepadIndex}}" aria-controls="controller-{{gamepadIndex}}" role="tab" data-toggle="tab">
+                                        {{gamepadIndex}}: {{$parent.gamepadsId[gamepadIndex]}}
+                                    </a>
+                                    </li>
+
+                                </ul>
+
+                                <!-- Tab panes -->
+                                <div class="tab-content ">
+
+                                    <div ng-repeat="gamepadIndex in gamepads" role="tabpanel " class="tab-pane controller-{{gamepadIndex}}">
+                                        <h2 class="section-heading">
+                                        {{gamepadIndex}}: {{$parent.gamepadsId[gamepadIndex]}}
+                                    </h2>
+                                        <table>
+                                            <tr>
+                                                <td ng-repeat="playerId in $parent.players ">
+                                                    <label for="player-{{playerId}}">{{playerId}}</label>
+                                                    <input type="checkbox" name="player-{{playerId}}" ng-model="$parent.$parent.controllerToPlayer[$parent.gamepadIndex][playerId] " ng-change="$parent.$parent.toggleControllerToPlayer($parent.gamepadIndex, playerId) ">
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <table>
+                                                    <thead>
+                                                        <th>Input</th>
+                                                        <th>Bindings</th>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat='input in $parent.inputNames'>
+                                                            <td>{{input}}</td>
+                                                            <td>
+                                                                {{$parent.$parent.controllerBindings[$parent.gamepadIndex][input]}}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <table class="table table-condensed">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Button</th>
+                                                            <th>Value</th>
+                                                            <th>Is Pressed?</th>
+                                                            <th>Was Released?</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr ng-repeat='button in $parent.currentStates[gamepadIndex]'>
+                                                            <th>{{button.name}}</th>
+                                                            <td ng-mouseenter="show = true" ng-mouseleave="show = false" ng-init="show = false">
+                                                                <span ng-hide="show">{{button.value.toFixed(2)}}</span>
+                                                                <div class="value-over" ng-show="show">
+                                                                    <kbd class="value">{{button.value}}</kbd>
+                                                                </div>
+
+                                                            </td>
+                                                            <td>
+                                                                {{button.pressed}}
+                                                            </td>
+                                                            <td>
+                                                                {{button.released}}
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <!--<div role="tabpanel " class="tab-pane " id="profile ">...</div>
+                                <div role="tabpanel " class="tab-pane " id="messages ">...</div>
+                                <div role="tabpanel " class="tab-pane " id="settings ">...</div>-->
+                                </div>
+
+                            </div>
+                            <!--<table class="table ">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th ng-repeat="playerId in players ">Player {{playerId}}</th>
+                                    <!--<th>Player 2</th>-->
+                            <!--    </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="gamepadIndex in gamepads ">
+                                    <th>{{gamepadIndex}}: {{$parent.gamepadsId[gamepadIndex]}}</th>
+                                    <td ng-repeat="playerId in $parent.players ">
+                                        <input type="checkbox " ng-model="$parent.$parent.bindings[$parent.gamepadIndex][playerId] " ng-change="$parent.$parent.toggleBinding($parent.gamepadIndex, playerId) ">
                                     </td>
-                                    <td>
-                                        <input type="checkbox" ng-model="$parent.bindings[gamepadIndex].indexOf(2) !== -1" ng-change="$parent.toggleBinding(gamepadIndex, 2)">
-                                    </td>-->
-                                    </tr>
-                                </tbody>
-                            </table>
+
+                                </tr>
+                            </tbody>
+                        </table>-->
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes</button>
+                        <div class="modal-footer ">
+                            <button type="button " class="btn btn-default " data-dismiss="modal ">Close</button>
+                            <button type="button " class="btn btn-primary ">Save changes</button>
                         </div>
                     </div>
                 </div>
@@ -98,7 +173,7 @@
             var elem = document.createElement('script');
             elem.src = "js";
             elem.async = true;
-            if(navigator.userAgent.indexOf('Firefox') !== -1) 
+            if (navigator.userAgent.indexOf('Firefox') !== -1)
                 elem.type = "application/javascript;version=1.7";
             document.getElementById('js-container').appendChild(elem);
         </script>
