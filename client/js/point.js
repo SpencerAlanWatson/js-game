@@ -1,5 +1,5 @@
 ;
-(function (global, undefined) {
+define([], function (undefined) {
     'use strict';
 
     function vec2(x, y) {
@@ -98,9 +98,5 @@
         }
         return v2;
     }
-    if (global.isNodejs) {
-        module.exports = vec2;
-    } else {
-        global.v2 = vec2;
-    }
-}(isNodejs ? global : window));
+    return vec2;
+});

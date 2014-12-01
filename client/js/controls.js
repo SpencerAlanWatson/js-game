@@ -1,138 +1,19 @@
 ;
-(function (global, undefined) {
+define(['vendor/lodash',
+        'vendor/EventDispatcher',
+        'vendor/stats',
+        'state',
+        'utils'
+       ], function (_, EventDispatcher, Stats, state, Utils, undefined) {
     'use strict';
 
-    function InputValue(value, pressed, released) {
-        return {
-            pressed: pressed ? true : false,
-            released: released ? true : false,
-            value: value !== undefined ? value : 0
-        };
-    }
-
-    function InputValues() {
-        return {
-            'moveV': InputValue(),
-            'moveH': InputValue(),
-            'lookV': InputValue(),
-            'lookH': InputValue(),
-            'fire': InputValue(),
-            'showStats': InputValue(),
-            'showControls': InputValue()
-        };
-    }
 
 
-    function defaultKeyboardBindings() {
-        return {
-            id: 'keyboard&mouse',
-            //w
-            87: '+moveV',
-            //up-arrow
-            38: '+moveV',
-
-            //s
-            83: '-moveV',
-            //down-arrow
-            40: '-moveV',
-
-            //a
-            65: '-moveH',
-            //left-arrow
-            37: '-moveH',
-
-            //d
-            68: '+moveH',
-            //right-arrow
-            39: '+moveH',
-
-            'mouse0': 'fire',
-            //i
-            73: 'showStats',
-            //c
-            67: 'showControls'
-        };
-    }
-
-    function makeButtonAxisBinding(positiveButton, negativeButton) {
-        return {
-            'pos': positiveButton,
-            'neg': negativeButton
-        };
-    }
-
-    function defaultKeyboardBindingsNew() {
-        return {
-            id: 'Keyboard and Mouse',
-            //w
-            // '-moveV': [87, 38],
-            'moveV': [makeButtonAxisBinding(83, 87), makeButtonAxisBinding(40, 38)],
-
-            //s
-            //'+moveV': [83, 40],
-
-
-            //a
-            //'-moveH': [65, 37],
-            'moveH': [makeButtonAxisBinding(68, 65), makeButtonAxisBinding(39, 37)],
-
-
-
-            //d
-            //  '+moveH': [68, 39],
-
-            'fire': ['mouse0'],
-            //i
-            'showStats': [73],
-            //c
-            'showControls': [67]
-        };
-    }
-
-    function defaultControllerBindings(controllerId, index) {
-        return {
-            id: controllerId,
-            //left stick x
-            'a0': 'moveH',
-
-            //left stick y
-            'a1': 'moveV',
-
-            //right stick x
-            'a2': 'lookH',
-            //right stick y
-            'a3': 'lookV',
-
-            //A button
-            0: 'fire',
-            //right trigger
-            6: 'fire'
-        };
-    }
-
-    function defaultControllerBindingsNew(controllerId, index) {
-        return {
-            id: controllerId,
-            //left stick x
-            'moveH': ['a0'],
-
-            //left stick y
-            'moveV': ['a1'],
-
-            //right stick x
-            'lookH': ['a2'],
-            //right stick y
-            'lookV': ['a3'],
-
-            //A button, right trigger
-            'fire': [0, 6],
-        };
-    }
 
     function Controls(canvas, canvasContainer) {
 
         var controls = {
-                inputNames: [
+            inputNames: [
                     'moveV',
                     'moveH',
                     'lookV',
@@ -141,42 +22,55 @@
                     'showStats',
                     'showControls'
                 ],
-                controllerInputValues: {
-                    '-1': InputValues(),
-                    //'0': InputValues()
-                },
-                controllerBindings: {
-                    '-1': defaultKeyboardBindingsNew(),
-                    //'0': defaultControllerBindings("Xbox 360 Controller (STANDARD GAMEPAD Vendor: 028e Product: 045e)", 0)
-                },
-                controllerToPlayer: {
-                    //-1 = keyboard&mouse
-                    "-1": [true, false],
-                    // "0": [false, false, true]
+            controllerInputValues: {
+                '-1': InputValues(),
+                //'0': InputValues()
+            },
+            controllerBindings: {
+                '-1': defaultKeyboardBindings(),
+                //'0': defaultControllerBindings("Xbox 360 Controller (STANDARD GAMEPAD Vendor: 028e Product: 045e)", 0)
+            },
+            controllerToPlayer: {
+                //-1 = keyboard&mouse
+                "-1": [true, false],
+                // "0": [false, false, true]
 
-                },
-
-                keysPressed: new Set(),
-                keysReleased: new Set(),
-                gamepadsConnected: [],
-                gamepadsId: [],
-                lastTimestamp: global.performance.now(),
-                interval: 0,
-                bindingDB: null
             },
 
-            domMousePositionX = 0,
-            domMousePositionY = 0,
-            canvasBoundingRect = canvas.getBoundingClientRect(),
-            stats = new Stats();
-        controls.gamepadsConnected.push(-1);
-        controls.gamepadsId[-1] = 'Keyboard and Mouse';
+            keysPressed: new Set(),
+            keysReleased: new Set(),
+            gamepadsConnected: [],
+            gamepadsId: [],
+            lastTimestamp: _.now(),
+            interval: 0,
+            bindingDB: null
+        };
+
+        if (!state.isNodejs) {
+
+            var domMousePositionX = 0,
+                domMousePositionY = 0,
+                canvasBoundingRect = canvas.getBoundingClientRect(),
+                stats = new Stats();
+            controls.gamepadsConnected.push(-1);
+            controls.gamepadsId[-1] = 'Keyboard and Mouse';
 
 
 
-        stats.setMode(0); // 0: fps, 1: ms
+            stats.setMode(0); // 0: fps, 1: ms
 
-        document.getElementById('stats-container').appendChild(stats.domElement);
+            document.getElementById('stats-container').appendChild(stats.domElement);
+
+        } else {
+            var stats = {
+                begin: function () {},
+                end: function () {}
+            };
+            var canvas = {
+                getBoundingClientRect: function () {}
+            }
+
+        }
 
         EventDispatcher.prototype.apply(controls);
         controls.InputValue = InputValue;
@@ -302,15 +196,22 @@
             return controls.domToCanvasCoords(domMousePositionX, domMousePositionY);
         };
         controls.domToCanvasCoords = function (clientX, clientY) {
-            return {
-                x: clientX - canvasBoundingRect.left,
-                y: clientY - canvasBoundingRect.top
-            };
+            if (state.isNodejs) {
+                return {
+                    x: clientX,
+                    y: clientY
+                };
+            } else {
+                return {
+                    x: clientX - canvasBoundingRect.left,
+                    y: clientY - canvasBoundingRect.top
+                };
+            }
         };
 
         controls.start = function () {
-            clearTimeout(controls.tickId);
-            controls.tickId = setTimeout(controls.controlTick, controls.interval);
+            Utils.requestFrame.stop(controls.tickId);
+            controls.tickId = Utils.requestFrame.start(controls.controlTick, controls.interval);
         };
         controls.stop = function () {
             clearTimeout(controls.tickId);
@@ -336,7 +237,7 @@
 
             controls.controllerInputValues[controller.index] = InputValues();
             controls.controllerToPlayer[controller.index] = [];
-            for (let i = 0, noPlayer = true; i < Game.manager.playerCount; ++i) {
+            for (let i = 0, noPlayer = true; i < state.playerCount; ++i) {
                 let noController = _.all(controls.controllerToPlayer, function (players, controllerIndex) {
                     return !players[i];
                 });
@@ -349,7 +250,7 @@
                 }
             }
             if (!isCustom) {
-                controls.controllerBindings[controller.index] = defaultControllerBindingsNew();
+                controls.controllerBindings[controller.index] = defaultControllerBindings();
             }
         };
         controls.removeController = function (controller) {
@@ -365,9 +266,8 @@
             delete controls.controllerInputValues[controller.index];
             delete controls.controllerToPlayer[controller.index];
         };
-        controls.controlTick = function (timestamp) {
+        controls.controlTick = function (nextFrame, timestamp) {
             stats.begin();
-            timestamp = timestamp || global.performance.now();
             canvasBoundingRect = canvas.getBoundingClientRect();
             var gamepads = navigator.getGamepads(),
                 mouseCoords = controls.getMousePosition(),
@@ -433,7 +333,7 @@
 
             controls.lastTimestamp = timestamp;
             stats.end();
-            controls.tickId = setTimeout(controls.controlTick, controls.interval);
+            controls.tickId = nextFrame();
 
         };
         controls.isAxisName = function (buttonCode) {
@@ -452,7 +352,7 @@
                 if (inputName === 'id' || inputName === 'index')
                     return;
 
-                var value = Game.Math.Clamp(_.reduce(keyObjects, function getValue(sum, keyCode) {
+                var value = Utils.Math.Clamp(_.reduce(keyObjects, function getValue(sum, keyCode) {
                         if (typeof keyCode === 'object') {
                             return sum + getValue(0, keyCode.pos) - getValue(0, keyCode.neg);
                         }
@@ -583,8 +483,8 @@
             canvasContainer.addEventListener('mousedown', controls.mouseDown);
             canvasContainer.addEventListener('mouseup', controls.mouseUp);
 
-            global.addEventListener('gamepadconnected', controls.gamepadConnected);
-            global.addEventListener('gamepaddisconnected', controls.gamepadDisconnected);
+            window.addEventListener('gamepadconnected', controls.gamepadConnected);
+            window.addEventListener('gamepaddisconnected', controls.gamepadDisconnected);
             var gamepads = navigator.getGamepads(),
                 gamepad = gamepads[0],
                 index = 0;
@@ -592,6 +492,7 @@
                 controls.addController(gamepad);
                 gamepad = gamepads[++index];
             }
+            return controls;
         };
         controls.unbind = function () {
 
@@ -602,17 +503,86 @@
             canvas.removeEventListener('mousedown', controls.mouseDown);
             canvas.removeEventListener('mouseup', controls.mouseUp);
 
-            global.removeEventListener('gamepadconnected', controls.gamepadConnected);
-            global.removeEventListener('gamepaddisconnected', controls.gamepadDisconnected);
-
+            window.removeEventListener('gamepadconnected', controls.gamepadConnected);
+            window.removeEventListener('gamepaddisconnected', controls.gamepadDisconnected);
+            return controls;
         };
-        controls.bind();
+        //controls.bind();
         return controls;
     };
-    if (global.isNodejs) {
-        module.exports = Controls;
-    } else {
-        global.Game = global.Game || {};
-        global.Game.Controls = Controls;
+
+    function InputValue(value, pressed, released) {
+        return {
+            pressed: pressed ? true : false,
+            released: released ? true : false,
+            value: value !== undefined ? value : 0
+        };
     }
-}(isNodejs ? global : window));
+
+    function InputValues() {
+        return {
+            'moveV': InputValue(),
+            'moveH': InputValue(),
+            'lookV': InputValue(),
+            'lookH': InputValue(),
+            'fire': InputValue(),
+            'showStats': InputValue(),
+            'showControls': InputValue()
+        };
+    }
+
+    function makeButtonAxisBinding(positiveButton, negativeButton) {
+        return {
+            'pos': positiveButton,
+            'neg': negativeButton
+        };
+    }
+
+    function defaultKeyboardBindings() {
+        return {
+            id: 'Keyboard and Mouse',
+            //w
+            // '-moveV': [87, 38],
+            'moveV': [makeButtonAxisBinding(83, 87), makeButtonAxisBinding(40, 38)],
+
+            //s
+            //'+moveV': [83, 40],
+
+
+            //a
+            //'-moveH': [65, 37],
+            'moveH': [makeButtonAxisBinding(68, 65), makeButtonAxisBinding(39, 37)],
+
+
+
+            //d
+            //  '+moveH': [68, 39],
+
+            'fire': ['mouse0'],
+            //i
+            'showStats': [73],
+            //c
+            'showControls': [67]
+        };
+    }
+
+    function defaultControllerBindings(controllerId, index) {
+        return {
+            id: controllerId,
+            //left stick x
+            'moveH': ['a0'],
+
+            //left stick y
+            'moveV': ['a1'],
+
+            //right stick x
+            'lookH': ['a2'],
+            //right stick y
+            'lookV': ['a3'],
+
+            //A button, right trigger
+            'fire': [0, 6],
+        };
+    }
+    return Controls;
+});

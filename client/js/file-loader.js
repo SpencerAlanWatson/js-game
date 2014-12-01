@@ -1,5 +1,5 @@
 ;
-(function (global, undefined) {
+define(['vendor/lodash'], function (_, undefined) {
     'use strict';
 
     function FileLoader() {
@@ -56,7 +56,7 @@
 
         function loadFileFactory(filesToLoad, names, resolve, reject) {
             var results = {
-                names: names, 
+                names: names,
                 files: _.create(null),
                 errCount: 0,
                 filesLoaded: 0
@@ -139,7 +139,5 @@
 
         return loader;
     };
-
-    global.Game = global.Game || {};
-    global.Game.FileLoader = FileLoader();
-}(isNodejs ? global : window));
+    return FileLoader();
+});

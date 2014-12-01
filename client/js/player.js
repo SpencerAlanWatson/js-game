@@ -1,5 +1,5 @@
 ;
-(function (global, undefined) {
+define(['vendor/lodash', 'point', 'manager','projectile','utils'], function (_, v2, manager, Projectile, Utils, undefined) {
     'use strict';
 
     function Player(playerNumber, x, y, style) {
@@ -20,12 +20,11 @@
             health: 400,
             maxHealth: 400,
             movement: v2(0, 0),
-            hpBarStyles: ["white", "blue", "lightgreen", "darkred", 'yellow'],
-            tao: Math.PI * 2
+            hpBarStyles: ["white", "blue", "lightgreen", "darkred", 'yellow']
         });
         player.hpBarRadius = player.radius - 2;
         player.uid = _.uniqueId(player.tag);
-        if (!global.isNodejs) {
+        if (!isNodejs) {
             if (Path2D !== undefined) {
                 player.startBatchDraw = function (context) {
 
@@ -46,7 +45,7 @@
 
                     //path2d.arc(0, 0, player.radius, 0, Math.PI * 2);
                     //path2d.moveTo(player.hpBarRadius, 0);
-                    //path2d.arc(0, 0, player.hpBarRadius, 0, (player.tao * player.health / player.maxHealth));
+                    //path2d.arc(0, 0, player.hpBarRadius, 0, (Utils.Math.Tao * player.health / player.maxHealth));
 
                     path2d.moveTo(-player.radius, 0);
 
@@ -69,14 +68,14 @@
 
 
                             context.strokeStyle = player.hpBarStyles[player.health / 100];
-                            context.arc(0, 0, player.hpBarRadius, 0, player.tao, false);
+                            context.arc(0, 0, player.hpBarRadius, 0, Utils.Math.Tao, false);
                         } else if (player.health / 100 < 1) {
                             context.strokeStyle = player.hpBarStyles[1];
                             context.beginPath();
-                            context.arc(0, 0, player.hpBarRadius, 0, player.tao * perc, false);
+                            context.arc(0, 0, player.hpBarRadius, 0, Utils.Math.Tao * perc, false);
                             context.closePath();
                         } else {
-                            let endAngle = player.tao * perc;
+                            let endAngle = Utils.Math.Tao * perc;
 
                             context.strokeStyle = player.hpBarStyles[Math.floor(player.health / 100)];
 
@@ -120,10 +119,10 @@
                     context.save();
                     context.moveTo(player.x + frontX, player.y + frontY);
 
-                    context.arc(player.x, player.y, player.radius, player.rotation, player.rotation + player.tao);
+                    context.arc(player.x, player.y, player.radius, player.rotation, player.rotation + Utils.Math.Tao);
                     context.moveTo(player.x + frontX / 3, player.y + frontY / 3);
 
-                    context.arc(player.x, player.y, player.hpBarRadius, player.rotation, player.rotation + (player.tao * player.health / player.maxHealth));
+                    context.arc(player.x, player.y, player.hpBarRadius, player.rotation, player.rotation + (Utils.Math.Tao * player.health / player.maxHealth));
 
                     context.moveTo(
                         player.x - frontX,
@@ -157,7 +156,7 @@
             /*if (player.playerNumber >= 1) {
                 //var dy = player.y - Game.manager.objects[0].y;
                 player.rotation = player.angleTo(Game.manager.objects[0]); //dy < 0 ? player.angleTo(Game.manager.objects[0]) : player.angleTo(player.sub(Game.manager.objects[0]));
-                player.fireProjectile(1, performance.now());
+                player.fireProjectile(1, _.now());
             }*/
         };
         player.fireProjectile = function (rate, timestamp) {
@@ -167,7 +166,7 @@
                 let cos = Math.cos(player.rotation),
                     sin = Math.sin(player.rotation);
 
-                Game.manager.add(Game.Projectile(
+                manager.add(Projectile(
                     player.rotation,
                     4,
                     player.x - (player.radius * cos) - (4 * cos) - (player.pointerRadius * cos),
@@ -256,10 +255,5 @@
         };
         return player;
     }
-    if (global.isNodejs) {
-        module.exports = Player;
-    } else {
-        global.Game = global.Game || {};
-        global.Game.Player = Player;
-    } 
-}(isNodejs ? global : window));
+    return Player;
+});

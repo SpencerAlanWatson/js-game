@@ -1,5 +1,5 @@
 ;
-(function (global, undefined) {
+define(['vendor/lodash', 'vendor/socket.io', 'manager'], function (_, io, manager, undefined) {
     'use strict';
 
     function NetworkControls(socket, id, index, player) {
@@ -11,7 +11,7 @@
 
         nc.physicsTick = function (event) {
             socket.emit('get input', index, function (inputs) {
-                Game.manager.controls.setAllInput(index, inputs);
+                manager.controls.setAllInput(index, inputs);
             });
         };
         nc.setupListeners = function (eventEmitters) {
@@ -42,17 +42,17 @@
             socket.emit('initialize', {}, function (data) {
 
 
-                Game.manager.controls.removePlayerFromController(0, '-1');
-                Game.manager.controls.addPlayerToController(data.playerNumber, '-1');
+                manager.controls.removePlayerFromController(0, '-1');
+                manager.controls.addPlayerToController(data.playerNumber, '-1');
                 _.each(data.players, function (player) {
                     var nc = NetworkControls(socket, "Network Controls", player.index, player.playerNumber);
-                    nc.setupListeners(Game.manager.eventEmitters);
+                    nc.setupListeners(manager.eventEmitters);
                     controllers.push(nc);
                 });
-                Game.manager.eventEmitters.physics.addEventListener('physicsTick', function () {
+                manager.eventEmitters.physics.addEventListener('physicsTick', function () {
                     socket.emit('send input', {
                         index: data.index,
-                        input: Game.manager.controls.controllerInputValues['-1']
+                        input: manager.controls.controllerInputValues['-1']
                     });
                 });
 
@@ -60,12 +60,11 @@
         });
         /* socket.on('news', function (data) {
             console.log(data);
-            if (Game && Game.manager && Game.manager.controls) {
-                socket.emit('my other event', Game.manager.controls.controllerInputValues);
+            if (Game && manager && manager.controls) {
+                socket.emit('my other event', manager.controls.controllerInputValues);
             }
         });*/
     };
 
-    global.Game = global.Game || {};
-    global.Game.Network = Network;
-}(isNodejs ? global : window));
+    return Network;
+});

@@ -1,5 +1,5 @@
 ;
-(function (global, undefined) {
+define(['vendor/lodash','v2', 'utils'], function (_, v2, Utils, undefined) {
     'use strict';
 
     function Wall(x, y, width, height) {
@@ -21,9 +21,9 @@
             wall.startBatchDraw = function (context) {
 
                 context.save();
-                context.strokeStyle = player.style;
-                context.fillStyle = player.style;
-                return player.setupCache(new Path2D());
+                context.strokeStyle = wall.style;
+                context.fillStyle = wall.style;
+                return wall.setupCache(new Path2D());
 
 
                 //context.beginPath();
@@ -36,14 +36,14 @@
 
             wall.draw = function (context, path2d) {
                 context.save();
-                context.translate(player.x, player.y);
+                context.translate(wall.x, wall.y);
 
-                context.rotate(player.rotation);
-                path2d = path2d || player.cache;
+                context.rotate(wall.rotation);
+                path2d = path2d || wall.cache;
                 // ctx.translate(-60, -25);
                 context.stroke(path2d);
-                context.moveTo(player.radius / 4, 0);
-                context.arc(0, 0, player.radius / 4, 0, (player.tao * player.health / player.maxHealth));
+                context.moveTo(wall.radius / 4, 0);
+                context.arc(0, 0, wall.radius / 4, 0, (Utils.Math.Tao * wall.health / wall.maxHealth));
                 context.stroke();
 
                 context.restore();
@@ -51,36 +51,36 @@
             wall.endBatchDraw = function (context) {
                 context.restore();
             };
-            wall.cache = player.setupCache(new Path2D());
+            wall.cache = wall.setupCache(new Path2D());
         } else {
             wall.startBatchDraw = function (context, graphics) {
 
                 context.save();
-                context.strokeStyle = player.style;
+                context.strokeStyle = wall.style;
 
 
                 context.beginPath();
             };
 
             wall.draw = function (context) {
-                var frontX = player.radius * Math.cos(player.rotation),
-                    frontY = player.radius * Math.sin(player.rotation);
+                var frontX = wall.radius * Math.cos(wall.rotation),
+                    frontY = wall.radius * Math.sin(wall.rotation);
                 context.save();
-                context.moveTo(player.x + frontX, player.y + frontY);
+                context.moveTo(wall.x + frontX, wall.y + frontY);
 
-                context.arc(player.x, player.y, player.radius, player.rotation, player.rotation + player.tao);
-                context.moveTo(player.x + frontX / 4, player.y + frontY / 4);
+                context.arc(wall.x, wall.y, wall.radius, wall.rotation, wall.rotation + Utils.Math.Tao);
+                context.moveTo(wall.x + frontX / 4, wall.y + frontY / 4);
 
-                context.arc(player.x, player.y, player.radius / 4, player.rotation, player.rotation + (player.tao * player.health / player.maxHealth));
+                context.arc(wall.x, wall.y, wall.radius / 4, wall.rotation, wall.rotation + (Utils.Math.Tao * wall.health / wall.maxHealth));
 
                 context.moveTo(
-                    player.x - frontX,
-                    player.y - frontY);
+                    wall.x - frontX,
+                    wall.y - frontY);
 
-                var rotStart = player.rotation - Math.PI / 2,
-                    rotEnd = player.rotation + Math.PI / 2;
+                var rotStart = wall.rotation - Math.PI / 2,
+                    rotEnd = wall.rotation + Math.PI / 2;
 
-                context.arc(player.x - frontX, player.y - frontY, player.pointerRadius, rotEnd, rotStart);
+                context.arc(wall.x - frontX, wall.y - frontY, wall.pointerRadius, rotEnd, rotStart);
                 context.restore();
             };
             wall.endBatchDraw = function (context) {
@@ -114,6 +114,5 @@
         }
         return wall;
     }
-    global.Game = global.Game || {};
-    global.Game.Wall = Wall;
-}(isNodejs ? global : window));
+    return Wall;
+});

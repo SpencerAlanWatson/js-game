@@ -1,5 +1,5 @@
 ;
-(function (global, undefined) {
+define(['utils'], function (Utils, undefined) {
     'use strict';
 
     function Box(x, y) {
@@ -11,8 +11,7 @@
             rotation: 0,
             parent: null,
             style: "blue",
-            tag: 'box',
-            tao: Math.PI * 2
+            tag: 'box'
         };
         box.startBatchDraw = function (context) {
 
@@ -25,7 +24,7 @@
                 frontY = box.radius * Math.sin(box.rotation);
 
             context.moveTo(box.x + frontX, box.y + frontY);
-            context.arc(box.x, box.y, box.radius, box.rotation, box.rotation + box.tao);
+            context.arc(box.x, box.y, box.radius, box.rotation, box.rotation + Utils.Math.Tao);
             context.moveTo(
                 box.x - frontX,
                 box.y - frontY);
@@ -76,10 +75,5 @@
         };
         return box;
     };
-    if (global.isNodejs) {
-        module.exports = Box;
-    } else {
-        global.Game = global.Game || {};
-        global.Game.Box = Box;
-    }
-}(isNodejs ? global : window));
+    return Box;
+});

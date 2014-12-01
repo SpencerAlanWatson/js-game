@@ -2,40 +2,62 @@
  (function (global, undefined) {
      'use strict';
      //$(document).ready(
+     var scriptType = "";
+     if (navigator.userAgent.indexOf('Firefox') !== -1)
+         scriptType = "text/javascript;version=1.8"; //"application/javascript;version=1.7";
 
-     document.addEventListener('readystatechange', StartUp);
+     require.config({
+         baseUrl: "js",
+         paths: {
+             "vendor": "vendor",
+         },
+         shim: {
+             "vendor/angular": {
+                 deps: ['jquery'],
+                 exports: 'angular'
+             },
+             'vendor/bootstrap': ['jquery']
 
-     function StartUp() {
+
+         },
+         map: {
+             // '*' means all modules will get 'jquery-private'
+             // for their 'jquery' dependency.
+             '*': {
+                 'vendor/lodash': 'vendor/lodash-private'
+             },
+
+             // 'lodash-private' wants the real lodash module
+             // though. If this line was not here, there would
+             // be an unresolvable cyclic dependency.
+             'vendor/lodash-private': {
+                 'vendor/lodash': 'vendor/lodash'
+             }
+         },
+         scriptType: scriptType,
+
+         waitSeconds: 15
+     });
+     require(["vendor/bootstrap", "vendor/angular", "state", "manager", "player", "controls"], StartUp)
+
+     function StartUp(bootstrap, angular,  state, Manager, Player, Controls) {
+         state.isNodejs = global.isNodejs;
          var Game = global.Game,
-             manager = Game.Manager(Game, window.innerWidth, window.innerHeight).init();
-
-         global.Game.manager = manager;
+             manager = Manager.init(window.innerWidth, window.innerHeight);
 
 
-         for (let i = 0, incX = 40; i < 2; ++i) {
-             let p = Game.Player(i, 20 + incX * i, 20);
 
-             manager.addPlayer(20 + incX * i, 20);
-
-             /*             if (i > 0) {
-                 let ai = Game.TestAI(i);
-                 ai.setupListeners(manager.eventEmitters);
-             }*/
+         for (let i = 0, incX = 40; i < state.playerTotal; ++i) {
+             let p = Player(i, 20 + incX * i, 20);
+             manager.add(p);
          }
-         /*manager.add(p1, 'player');
-         manager.add(p2, 'player');
-         manager.add(p3, 'player');
-         manager.add(p4, 'player');
-         manager.add(p5, 'player');
-         manager.add(p6, 'player');
-         manager.add(p7, 'player');*/
          manager.start();
          //global.Game.p1 = p1;
          //global.Game.p2 = p2;
          var gameApp = angular.module('game', []);
          gameApp.controller('controllers', ['$scope', '$window', '$document',
              function ($scope, $window, $document) {
-                 var controls = $window.Game.manager.controls;
+                 var controls = manager.controls;
                  $scope.players = [0, 1];
                  $scope.gamepads = controls.gamepadsConnected;
                  $scope.gamepadsId = controls.gamepadsId;

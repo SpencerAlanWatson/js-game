@@ -171,21 +171,18 @@
     <section id="js-container">
         <script>
             window.isNodejs = false;
+        </script>
+
+        <script data-main="js/main.js" src="js/vendor/require.js" async defer></script>
+        <!--<script>
+            window.isNodejs = false;
             var elem = document.createElement('script');
             elem.src = "js";
             elem.async = true;
             if (navigator.userAgent.indexOf('Firefox') !== -1)
                 elem.type = "application/javascript;version=1.7";
             document.getElementById('js-container').appendChild(elem);
-        </script>
-        <!--<script src="js/vendor/jquery-2.1.1.js"></script>
-        <script src="js/vendor/lz-string.js"></script>
-        <script src="js/vendor/lodash.js"></script>
-        <script src="js/file-loader.js"></script>
-        <script src="js/vendor/EventDispatcher.js"></script>
-        <script src="js/start.js"></script>
-        <!-- <script async src="game.min.js"></script>-->
-        <!--<script async src="js"></script>-->
+        </script>-->
 
     </section>
 </body>

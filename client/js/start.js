@@ -1,5 +1,5 @@
 ;
-(function (global, undefined) {
+define(function (global, undefined) {
     'use strict';
     //$(document).ready(
     var scriptType = navigator.userAgent.indexOf('Firefox') === -1 ? 'application/javascript' : 'application/javascript;version=1.7',

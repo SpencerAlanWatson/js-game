@@ -1,5 +1,5 @@
 ;
-(function (global, undefined) {
+define(['vendor/lodash','manager'], function (_, Manager, undefined) {
     'use strict';
 
     function TestAI(playerNumber) {
@@ -16,9 +16,9 @@
         ai.physicsTick = function (event) {
 
             var perSecond = event.perSecond,
-                controls = Game.manager.controls,
-                player = Game.manager.objects[ai.playerNumber],
-                target = Game.manager.objects[ai.targetNumber];
+                controls = manager.controls,
+                player = manager.objects[ai.playerNumber],
+                target = manager.objects[ai.targetNumber];
 
             if (player && target) {
                 var angle = player.angleTo(target);
@@ -63,6 +63,5 @@
         };
         return ai;
     }
-    global.Game = global.Game || {};
-    global.Game.TestAI = TestAI;
-}(isNodejs ? global : window));
+    return TestAI;
+});

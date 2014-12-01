@@ -1,5 +1,5 @@
 ;
-(function (global, undefined) {
+define(['vendor/lodash', 'vendor/EventDispatcher', 'vendor/stats'], function (_, EventDispatcher, Stats, undefined) {
     'use strict';
 
     function Graphics(width, height) {
@@ -127,7 +127,5 @@
         document.getElementById('canvas-container').appendChild(graphics.screenCanvas);
         return graphics;
     };
-
-    global.Game = global.Game || {};
-    global.Game.Graphics = Graphics;
-}(isNodejs ? global : window));
+    return Graphics;
+});

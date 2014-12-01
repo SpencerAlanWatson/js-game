@@ -1,19 +1,42 @@
 ;
 (function (global, undefined) {
     'use strict';
+    var requirejs = require('requirejs');
 
-    if (!global.isNodejs) return;
-    let Game = {
-            Manager: require('./manager'),
-            Physics: require('./physics'),
-            Player: require('./player'),
-            Controls: require('./controls')
+    requirejs.config({
+        baseUrl: __dirname,
+        paths: {
+            "vendor": "vendor",
+        },
+        shim: {
+            "vendor/angular": {
+                deps: ['jquery'],
+                exports: 'angular'
+            },
+            'vendor/bootstrap': ['jquery']
+
 
         },
-        manager = Game.Manager(Game, 0, 0).init();
+        map: {
+            // '*' means all modules will get 'jquery-private'
+            // for their 'jquery' dependency.
+            '*': {
+                'vendor/lodash': 'vendor/lodash-private'
+            },
 
-
-    console.log(Game);
-
-    module.exports = Game;
-}(isNodejs ? global : window));
+            // 'lodash-private' wants the real lodash module
+            // though. If this line was not here, there would
+            // be an unresolvable cyclic dependency.
+            'vendor/lodash-private': {
+                'vendor/lodash': 'vendor/lodash'
+            }
+        },
+        nodeRequire: require,
+        waitSeconds: 15
+    });
+    requirejs(["vendor/lodash", "state", "manager", "player", "controls"], StartUp);
+    function StartUp(lodash, state, manager, Player, Controls) {
+        state.isNodejs = true;
+        manager.init(0, 0);
+    };
+}(global));

@@ -1,5 +1,6 @@
 ;
-(function (global, undefined) {
+define(['vendor/lodash', 'state', 'point', 'manager', 'utils'],
+       function (_, state, v2, manager, Utils, undefined) {
     'use strict';
 
     function Projectile(angle, radius, x, y) {
@@ -11,7 +12,6 @@
             batchName: 'projectile',
             removed: false,
             style: "red",
-            tao: Math.PI * 2,
             mass: 1e5,
             baseSpeed: 1200,
             damage: 10,
@@ -39,7 +39,7 @@
                 context.restore();
             };
             projectile.setupPath = function (path2d) {
-                path2d.arc(0, 0, projectile.radius, 0, projectile.tao);
+                path2d.arc(0, 0, projectile.radius, 0, Utils.Math.Tao);
                 return path2d;
             };
             projectile.Path2D = projectile.setupPath(new Path2D());
@@ -53,7 +53,7 @@
             projectile.draw = function (context) {
 
                 context.moveTo(projectile.x, projectile.y);
-                context.arc(projectile.x, projectile.y, projectile.radius, 0, projectile.tao);
+                context.arc(projectile.x, projectile.y, projectile.radius, 0, Utils.Math.Tao);
             };
             projectile.endBatchDraw = function (context) {
                 context.fill();
@@ -67,7 +67,7 @@
             projectile.addSelf(projectile.acclerationVector.x * perSecond, projectile.acclerationVector.y * perSecond);
 
             if (projectile.x < -projectile.radius * 2 || projectile.x > window.innerWidth + projectile.radius * 2 || projectile.y < -projectile.radius * 2 || projectile.y > window.innerHeight + projectile.radius * 2) {
-                Game.manager.remove(projectile);
+                manager.remove(projectile);
                 projectile.removed = true;
             } else {
 
@@ -82,7 +82,7 @@
                 // console.count(projectile.uid);
 
                 //console.log('collision with player', object);
-                Game.manager.remove(projectile);
+                manager.remove(projectile);
                 projectile.removed = true;
             }
         };
@@ -102,11 +102,5 @@
         }
         return projectile;
     };
-    if (global.isNodejs) {
-        
-        module.exports = Projectile;
-    } else {
-        global.Game = global.Game || {};
-        global.Game.Projectile = Projectile;
-    }
-}(isNodejs ? global : window));
+    return Projectile;
+});
