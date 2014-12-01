@@ -12,4 +12,4 @@
 
     global.Game = global.Game || {};
     global.Game.Math = MathFuncs();
-}(this));
+}(isNodejs ? global : window));

@@ -142,4 +142,4 @@
 
     global.Game = global.Game || {};
     global.Game.FileLoader = FileLoader();
-}(this));
+}(isNodejs ? global : window));

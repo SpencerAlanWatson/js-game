@@ -68,4 +68,4 @@
 
     global.Game = global.Game || {};
     global.Game.Network = Network;
-}(this));
+}(isNodejs ? global : window));

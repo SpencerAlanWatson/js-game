@@ -609,29 +609,10 @@
         controls.bind();
         return controls;
     };
-    global.Game = global.Game || {};
-    global.Game.Controls = Controls;
-}(this));
-
-function controllerTest() {
-    'use strict';
-    var gamepads = navigator.getGamepads();
-
-    function intervalFunc() {
-        console.group('Controller Buttons Pressed');
-        var gamepad = gamepads[0],
-            index = 0;
-        while (gamepad) {
-            console.group(gamepad.index);
-            gamepad.buttons.forEach(function (button, buttonIndex) {
-                if (button.pressed) {
-                    console.info('Button $d is pressed with value $d', buttonIndex, button.value);
-                }
-            });
-            console.groupEnd();
-            gamepad = gamepads[++index];
-        }
-        console.groupEnd();
+    if (global.isNodejs) {
+        module.exports = Controls;
+    } else {
+        global.Game = global.Game || {};
+        global.Game.Controls = Controls;
     }
-    window.intervalId = setInterval(intervalFunc, 100);
-}
+}(isNodejs ? global : window));

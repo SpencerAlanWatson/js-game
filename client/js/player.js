@@ -23,127 +23,127 @@
             hpBarStyles: ["white", "blue", "lightgreen", "darkred", 'yellow'],
             tao: Math.PI * 2
         });
-        player.hpBarRadius = player.radius -2;
+        player.hpBarRadius = player.radius - 2;
         player.uid = _.uniqueId(player.tag);
+        if (!global.isNodejs) {
+            if (Path2D !== undefined) {
+                player.startBatchDraw = function (context) {
 
-        if (Path2D !== undefined) {
-            player.startBatchDraw = function (context) {
-
-                context.save();
-                context.strokeStyle = player.style;
-                context.fillStyle = player.style;
-                context.lineWidth = 2.5;
-                context.font = player.hpBarRadius + "px Roboto Condensed";
-                context.textAlign = 'center';
-                context.textBaseline = "middle";
-                context.beginPath();
-                return player.setupCache(new Path2D());
-
-
-                //context.beginPath();
-            };
-            player.setupCache = function (path2d) {
-
-                //path2d.arc(0, 0, player.radius, 0, Math.PI * 2);
-                //path2d.moveTo(player.hpBarRadius, 0);
-                //path2d.arc(0, 0, player.hpBarRadius, 0, (player.tao * player.health / player.maxHealth));
-
-                path2d.moveTo(-player.radius, 0);
-
-                path2d.arc(-player.radius, 0, player.pointerRadius, Math.PI / 2, -Math.PI / 2);
-                return path2d;
-            };
-
-            player.draw = function (context, path2d) {
-                context.save();
-                context.translate(player.x, player.y);
-
-                context.rotate(player.rotation);
-                path2d = path2d || player.cache;
-                // ctx.translate(-60, -25);
-                context.stroke(path2d);
-                context.moveTo(player.hpBarRadius, 0);
-                if (player.health > 0) {
-                    let perc = player.health % 100 / 100;
-                    if (perc === 0) {
+                    context.save();
+                    context.strokeStyle = player.style;
+                    context.fillStyle = player.style;
+                    context.lineWidth = 2.5;
+                    context.font = player.hpBarRadius + "px Roboto Condensed";
+                    context.textAlign = 'center';
+                    context.textBaseline = "middle";
+                    context.beginPath();
+                    return player.setupCache(new Path2D());
 
 
-                        context.strokeStyle = player.hpBarStyles[player.health / 100];
-                        context.arc(0, 0, player.hpBarRadius, 0, player.tao, false);
-                    } else if (player.health / 100 < 1) {
-                        context.strokeStyle = player.hpBarStyles[1];
-                        context.beginPath();
-                        context.arc(0, 0, player.hpBarRadius, 0, player.tao * perc, false);
-                        context.closePath();
-                    } else {
-                        let endAngle = player.tao * perc;
+                    //context.beginPath();
+                };
+                player.setupCache = function (path2d) {
 
-                        context.strokeStyle = player.hpBarStyles[Math.floor(player.health / 100)];
+                    //path2d.arc(0, 0, player.radius, 0, Math.PI * 2);
+                    //path2d.moveTo(player.hpBarRadius, 0);
+                    //path2d.arc(0, 0, player.hpBarRadius, 0, (player.tao * player.health / player.maxHealth));
 
-                        context.beginPath();
-                        context.arc(0, 0, player.hpBarRadius, 0, endAngle, true);
-                        context.closePath();
+                    path2d.moveTo(-player.radius, 0);
+
+                    path2d.arc(-player.radius, 0, player.pointerRadius, Math.PI / 2, -Math.PI / 2);
+                    return path2d;
+                };
+
+                player.draw = function (context, path2d) {
+                    context.save();
+                    context.translate(player.x, player.y);
+
+                    context.rotate(player.rotation);
+                    path2d = path2d || player.cache;
+                    // ctx.translate(-60, -25);
+                    context.stroke(path2d);
+                    context.moveTo(player.hpBarRadius, 0);
+                    if (player.health > 0) {
+                        let perc = player.health % 100 / 100;
+                        if (perc === 0) {
+
+
+                            context.strokeStyle = player.hpBarStyles[player.health / 100];
+                            context.arc(0, 0, player.hpBarRadius, 0, player.tao, false);
+                        } else if (player.health / 100 < 1) {
+                            context.strokeStyle = player.hpBarStyles[1];
+                            context.beginPath();
+                            context.arc(0, 0, player.hpBarRadius, 0, player.tao * perc, false);
+                            context.closePath();
+                        } else {
+                            let endAngle = player.tao * perc;
+
+                            context.strokeStyle = player.hpBarStyles[Math.floor(player.health / 100)];
+
+                            context.beginPath();
+                            context.arc(0, 0, player.hpBarRadius, 0, endAngle, true);
+                            context.closePath();
+                            context.stroke();
+                            context.beginPath();
+                            context.strokeStyle = player.hpBarStyles[Math.ceil(player.health / 100)];
+                            context.arc(0, 0, player.hpBarRadius, 0, endAngle, false);
+                            context.closePath();
+
+
+
+                        }
                         context.stroke();
-                        context.beginPath();
-                        context.strokeStyle = player.hpBarStyles[Math.ceil(player.health / 100)];
-                        context.arc(0, 0, player.hpBarRadius, 0, endAngle, false);
-                        context.closePath();
-
-
 
                     }
+                    context.strokeStyle = player.style;
+                    context.beginPath();
+                    context.fillText(player.health, 0, 0);
+                    context.restore();
+                };
+                player.endBatchDraw = function (context) {
+                    context.restore();
+                };
+                player.cache = player.setupCache(new Path2D());
+            } else {
+                player.startBatchDraw = function (context, graphics) {
+
+                    context.save();
+                    context.strokeStyle = player.style;
+
+
+                    context.beginPath();
+                };
+
+                player.draw = function (context) {
+                    var frontX = player.radius * Math.cos(player.rotation),
+                        frontY = player.radius * Math.sin(player.rotation);
+                    context.save();
+                    context.moveTo(player.x + frontX, player.y + frontY);
+
+                    context.arc(player.x, player.y, player.radius, player.rotation, player.rotation + player.tao);
+                    context.moveTo(player.x + frontX / 3, player.y + frontY / 3);
+
+                    context.arc(player.x, player.y, player.hpBarRadius, player.rotation, player.rotation + (player.tao * player.health / player.maxHealth));
+
+                    context.moveTo(
+                        player.x - frontX,
+                        player.y - frontY);
+
+                    var rotStart = player.rotation - Math.PI / 2,
+                        rotEnd = player.rotation + Math.PI / 2;
+
+                    context.arc(player.x - frontX, player.y - frontY, player.pointerRadius, rotEnd, rotStart);
+                    context.restore();
+                };
+                player.endBatchDraw = function (context) {
                     context.stroke();
 
-                }
-                context.strokeStyle = player.style;
-                context.beginPath();
-                context.fillText(player.health, 0, 0);
-                context.restore();
-            };
-            player.endBatchDraw = function (context) {
-                context.restore();
-            };
-            player.cache = player.setupCache(new Path2D());
-        } else {
-            player.startBatchDraw = function (context, graphics) {
-
-                context.save();
-                context.strokeStyle = player.style;
+                    context.restore();
+                };
 
 
-                context.beginPath();
-            };
-
-            player.draw = function (context) {
-                var frontX = player.radius * Math.cos(player.rotation),
-                    frontY = player.radius * Math.sin(player.rotation);
-                context.save();
-                context.moveTo(player.x + frontX, player.y + frontY);
-
-                context.arc(player.x, player.y, player.radius, player.rotation, player.rotation + player.tao);
-                context.moveTo(player.x + frontX / 3, player.y + frontY / 3);
-
-                context.arc(player.x, player.y, player.hpBarRadius, player.rotation, player.rotation + (player.tao * player.health / player.maxHealth));
-
-                context.moveTo(
-                    player.x - frontX,
-                    player.y - frontY);
-
-                var rotStart = player.rotation - Math.PI / 2,
-                    rotEnd = player.rotation + Math.PI / 2;
-
-                context.arc(player.x - frontX, player.y - frontY, player.pointerRadius, rotEnd, rotStart);
-                context.restore();
-            };
-            player.endBatchDraw = function (context) {
-                context.stroke();
-
-                context.restore();
-            };
-
-
+            }
         }
-
         player.addMovement = function (dx, dy) {
 
             player.movement.x += dx;
@@ -256,6 +256,10 @@
         };
         return player;
     }
-    global.Game = global.Game || {};
-    global.Game.Player = Player;
-}(this));
+    if (global.isNodejs) {
+        module.exports = Player;
+    } else {
+        global.Game = global.Game || {};
+        global.Game.Player = Player;
+    } 
+}(isNodejs ? global : window));

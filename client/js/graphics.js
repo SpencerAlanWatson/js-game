@@ -130,4 +130,4 @@
 
     global.Game = global.Game || {};
     global.Game.Graphics = Graphics;
-}(this));
+}(isNodejs ? global : window));

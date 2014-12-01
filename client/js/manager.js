@@ -2,31 +2,48 @@
 (function (global, undefined) {
     'use strict';
 
-    function Manager(width, height) {
+    function Manager(Game, width, height) {
         var manager = {
-            graphics: Game.Graphics(width, height),
-            physics: Game.Physics(),
+
             objects: [],
             playerCount: 0
 
         };
-        Game.manager = manager;
-        manager.controls = Game.Controls(manager.graphics.screenCanvas, manager.graphics.screenCanvas.parentElement);
-        manager.eventEmitters = {
-            graphics: manager.graphics,
-            physics: manager.physics,
-            controls: manager.controls
-        };
 
+        Game.manager = manager;
+
+        manager.init = function () {
+            manager.eventEmitters = {};
+
+            manager.physics = Game.Physics();
+            if (global.isNodejs) {
+                manager.controls = Game.Controls();
+
+            } else {
+                manager.graphics = Game.Graphics(width, height);
+                manager.controls = Game.Controls(manager.graphics.screenCanvas, manager.graphics.screenCanvas.parentElement);
+                manager.eventEmitters.graphics = manager.graphics;
+
+            }
+            manager.eventEmitters.controls = manager.controls;
+            manager.eventEmitters.physics = manager.physics;
+
+            return manager;
+        };
         manager.start = function () {
-            manager.graphics.start();
+            if (!global.isNodejs)
+                manager.graphics.start();
             manager.physics.start(manager.objects);
             manager.controls.start();
+
+            return manager;
         };
         manager.stop = function () {
-            manager.graphics.stop();
+            if (!global.isNodejs)
+                manager.graphics.stop();
             manager.physics.stop();
             manager.controls.stop();
+            return manager;
         };
 
         function add(object) {
@@ -35,8 +52,8 @@
             manager.objects.push(object);
             manager.addToGraphics(object, object.batchName ? object.batchName : false);
         }
-        
-        
+
+
 
         function remove(object) {
             let undefined;
@@ -61,7 +78,7 @@
         manager.add = function (object) {
             _.defer(add, object);
         }
-        manager.addPlayer = function(x, y) {
+        manager.addPlayer = function (x, y) {
             _.defer(add, Game.Player(manager.playerCount++, x, y));
         };
         manager.remove = function (object) {
@@ -74,6 +91,7 @@
             manager.addToPhysics(object);
         };
         manager.addToGraphics = function (object, batchName) {
+            if (global.isNodejs) return;
             if (batchName)
                 manager.graphics.addToBatch(batchName, object);
             else
@@ -89,6 +107,8 @@
             manager.removeFromPhysics(object);
         };
         manager.removeFromGraphics = function (object, batchName) {
+            if (global.isNodejs) return;
+
             if (batchName)
                 manager.graphics.removeFromBatch(batchName, object);
             else
@@ -99,7 +119,10 @@
         };
         return manager;
     };
-
-    global.Game = global.Game || {};
-    global.Game.Manager = Manager;
-}(this));
+    if (global.isNodejs) {
+        module.exports = Manager;
+    } else {
+        global.Game = global.Game || {};
+        global.Game.Manager = Manager;
+    }
+}(isNodejs ? global : window));

@@ -1,10 +1,12 @@
 /*global require*/
+global.isNodejs = true;
+
 var express = require('express'),
     app = express(),
     fs = require('fs'),
     _ = require('lodash'),
-    buildify = require('buildify');
-
+    buildify = require('buildify'),
+    Game = require('./client');
 
 
 app.get('/js', function (req, res) {

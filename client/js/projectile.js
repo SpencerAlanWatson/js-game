@@ -43,7 +43,7 @@
                 return path2d;
             };
             projectile.Path2D = projectile.setupPath(new Path2D());
-            
+
         } else {
             projectile.startBatchDraw = function (context) {
                 context.save();
@@ -102,6 +102,11 @@
         }
         return projectile;
     };
-    global.Game = global.Game || {};
-    global.Game.Projectile = Projectile;
-}(this));
+    if (global.isNodejs) {
+        
+        module.exports = Projectile;
+    } else {
+        global.Game = global.Game || {};
+        global.Game.Projectile = Projectile;
+    }
+}(isNodejs ? global : window));

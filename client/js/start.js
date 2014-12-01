@@ -279,4 +279,4 @@
     global.Game.statusEmitter = {};
 
     EventDispatcher.prototype.apply(global.Game.statusEmitter);
-}(this));
+}(isNodejs ? global : window));

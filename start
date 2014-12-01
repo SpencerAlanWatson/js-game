@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+cd ~/Desktop/Programming/webdev/js-game
+#Enables all Harmony features avalible in the installed node version
+node $(node --v8-options | grep harm | awk '{print $1}' | xargs) server.js

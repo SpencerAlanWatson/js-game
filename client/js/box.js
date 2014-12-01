@@ -1,6 +1,7 @@
 ;
-(function (global) {
+(function (global, undefined) {
     'use strict';
+
     function Box(x, y) {
         var box = {
             x: x,
@@ -75,6 +76,10 @@
         };
         return box;
     };
-    global.Game = global.Game || {};
-    global.Game.Box = Box;
-}(this));
+    if (global.isNodejs) {
+        module.exports = Box;
+    } else {
+        global.Game = global.Game || {};
+        global.Game.Box = Box;
+    }
+}(isNodejs ? global : window));

@@ -1,5 +1,5 @@
 ;
-(function (global) {
+(function (global, undefined) {
     'use strict';
 
     function Wall(x, y, width, height) {
@@ -116,4 +116,4 @@
     }
     global.Game = global.Game || {};
     global.Game.Wall = Wall;
-}(this));
+}(isNodejs ? global : window));

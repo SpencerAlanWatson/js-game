@@ -1,5 +1,5 @@
  ;
- (function (global) {
+ (function (global, undefined) {
      'use strict';
      //$(document).ready(
 
@@ -7,7 +7,7 @@
 
      function StartUp() {
          var Game = global.Game,
-             manager = Game.Manager(window.innerWidth, window.innerHeight);
+             manager = Game.Manager(Game, window.innerWidth, window.innerHeight).init();
 
          global.Game.manager = manager;
 
@@ -155,4 +155,4 @@
              console.error(e);
          }
      };
- }(this));
+ }(isNodejs ? global : window));

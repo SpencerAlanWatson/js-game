@@ -1,5 +1,5 @@
 ;
-(function (global) {
+(function (global, undefined) {
     'use strict';
 
     function vec2(x, y) {
@@ -71,8 +71,8 @@
 
             //We do this to prevent NaN 
             //return Math.acos(clamped);
-            
-            
+
+
             return Math.atan2(v2.y - v.y, v2.x - v.x);
         };
         v2.distanceToSq = function (v) {
@@ -98,6 +98,9 @@
         }
         return v2;
     }
-
-    global.v2 = vec2;
-}(this));
+    if (global.isNodejs) {
+        module.exports = vec2;
+    } else {
+        global.v2 = vec2;
+    }
+}(isNodejs ? global : window));

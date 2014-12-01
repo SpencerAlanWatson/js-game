@@ -65,4 +65,4 @@
     }
     global.Game = global.Game || {};
     global.Game.TestAI = TestAI;
-}(this));
+}(isNodejs ? global : window));
