@@ -25,7 +25,7 @@
         });
         player.uid = _.uniqueId(player.tag);
 
-        if (Path2D !== undefined) {
+        if (typeof Path2D !== 'undefined') {
             player.startBatchDraw = function (context) {
 
                 context.save();
