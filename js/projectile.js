@@ -22,7 +22,7 @@
         projectile.forceVector = v2(0, 0);
         projectile.acclerationVector = v2(projectile.baseSpeed * -Math.cos(projectile.angle), projectile.baseSpeed * -Math.sin(projectile.angle));
 
-        if (Path2D !== undefined) {
+        if (typeof Path2D !== 'undefined') {
             projectile.startBatchDraw = function (context) {
                 context.save();
                 context.fillStyle = projectile.style;
