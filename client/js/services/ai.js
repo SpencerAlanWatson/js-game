@@ -1,5 +1,5 @@
 ;
-define(['vendor/lodash','manager'], function (_, Manager, undefined) {
+define(['vendor/lodash','mod/manager'], function (_, Manager, undefined) {
     'use strict';
 
     function TestAI(playerNumber) {

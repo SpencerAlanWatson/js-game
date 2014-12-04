@@ -7,6 +7,12 @@
         baseUrl: __dirname,
         paths: {
             "vendor": "vendor",
+            "cntr": "controllers",
+            "dir": "directives",
+            "mod": "modules",
+            "serv": "services",
+            "util": "utils",
+            "fact": "factories"
         },
         shim: {
             "vendor/angular": {
@@ -34,7 +40,8 @@
         nodeRequire: require,
         waitSeconds: 15
     });
-    requirejs(["vendor/lodash", "state", "manager", "player", "controls"], StartUp);
+    requirejs(["vendor/lodash", "serv/state", "mod/manager", "fact/player", "mod/controls"], StartUp);
+
     function StartUp(lodash, state, manager, Player, Controls) {
         state.isNodejs = true;
         manager.init(0, 0);

@@ -1,5 +1,5 @@
 ;
-define(['vendor/lodash', 'point', 'manager','projectile','utils'], function (_, v2, manager, Projectile, Utils, undefined) {
+define(['vendor/lodash', 'fact/point', 'mod/manager','fact/projectile','util/utils'], function (_, v2, manager, Projectile, Utils, undefined) {
     'use strict';
 
     function Player(playerNumber, x, y, style) {

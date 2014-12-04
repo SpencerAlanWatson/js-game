@@ -1,5 +1,5 @@
 ;
-define(['vendor/lodash', 'state', 'point', 'manager', 'utils'],
+define(['vendor/lodash', 'serv/state', 'fact/point', 'mod/manager', 'util/utils'],
        function (_, state, v2, manager, Utils, undefined) {
     'use strict';
 

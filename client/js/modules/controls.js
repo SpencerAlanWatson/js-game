@@ -2,8 +2,8 @@
 define(['vendor/lodash',
         'vendor/EventDispatcher',
         'vendor/stats',
-        'state',
-        'utils'
+        'serv/state',
+        'util/utils'
        ], function (_, EventDispatcher, Stats, state, Utils, undefined) {
     'use strict';
 

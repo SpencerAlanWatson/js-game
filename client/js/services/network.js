@@ -1,5 +1,5 @@
 ;
-define(['vendor/lodash', 'vendor/socket.io', 'manager'], function (_, io, manager, undefined) {
+define(['vendor/lodash', 'vendor/socket.io', 'mod/manager'], function (_, io, manager, undefined) {
     'use strict';
 
     function NetworkControls(socket, id, index, player) {

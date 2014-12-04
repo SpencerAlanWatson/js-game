@@ -4,12 +4,18 @@
      //$(document).ready(
      var scriptType = "";
      if (navigator.userAgent.indexOf('Firefox') !== -1)
-         scriptType = "text/javascript;version=1.8"; //"application/javascript;version=1.7";
+         scriptType = "application/javascript;version=1.7";
 
      require.config({
          baseUrl: "js",
          paths: {
              "vendor": "vendor",
+             "cntr": "controllers",
+             "dir": "directives",
+             "mod": "modules",
+             "serv": "services",
+             "util": "utils",
+             "fact": "factories"
          },
          shim: {
              "vendor/angular": {
@@ -38,7 +44,7 @@
 
          waitSeconds: 15
      });
-     require(["vendor/bootstrap", "vendor/angular", "state", "manager", "player", "controls"], StartUp)
+     require(["vendor/bootstrap", "vendor/angular", "serv/state", "mod/manager", "fact/player", "mod/controls"], StartUp)
 
      function StartUp(bootstrap, angular,  state, Manager, Player, Controls) {
          state.isNodejs = global.isNodejs;
@@ -47,8 +53,8 @@
 
 
 
-         for (let i = 0, incX = 40; i < state.playerTotal; ++i) {
-             let p = Player(i, 20 + incX * i, 20);
+         for (var i = 0, incX = 40; i < state.playerTotal; ++i) {
+             var p = Player(i, 20 + incX * i, 20);
              manager.add(p);
          }
          manager.start();
@@ -98,7 +104,7 @@
                              '-1': {}
                          };
 
-                     for (let keyCode of keysPressed) {
+                     for (var keyCode of keysPressed) {
                          currentStates[-1][keyCode] = {
                              name: keyCode,
                              value: 1,
@@ -106,7 +112,7 @@
                              released: false
                          };
                      }
-                     for (let keyCode of keysReleased) {
+                     for (var keyCode of keysReleased) {
                          if (currentStates[-1][keyCode]) {
                              currentStates[-1][keyCode].value = 0;
                              currentStates[-1][keyCode].released = true;
@@ -123,8 +129,8 @@
                          gamepad = gamepads[i];
                      while (gamepad) {
                          currentStates[gamepad.index] = {};
-                         for (let buttonIndex in gamepad.buttons) {
-                             let button = gamepad.buttons[buttonIndex];
+                         for (var buttonIndex in gamepad.buttons) {
+                             var button = gamepad.buttons[buttonIndex];
                              currentStates[gamepad.index][buttonIndex] = {
                                  name: buttonIndex,
                                  value: button.value,
@@ -132,8 +138,8 @@
                                  released: 'N/A'
                              };
                          }
-                         for (let axesIndex in gamepad.axes) {
-                             let axesValue = gamepad.axes[axesIndex],
+                         for (var axesIndex in gamepad.axes) {
+                             var axesValue = gamepad.axes[axesIndex],
                                  axesName = 'a' + axesIndex;
                              currentStates[gamepad.index][axesName] = {
                                  name: axesName,

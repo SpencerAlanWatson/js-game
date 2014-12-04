@@ -1,5 +1,5 @@
 ;
-define(['vendor/lodash','state', 'controls', 'physics', 'graphics'], function (_, state, Controls, Physics, Graphics, undefined) {
+define(['vendor/lodash','serv/state', 'mod/controls', 'mod/physics', 'mod/graphics'], function (_, state, Controls, Physics, Graphics, undefined) {
     'use strict';
     state.playerCount = 0;
     state.playerTotal = 2;

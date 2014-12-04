@@ -1,5 +1,5 @@
 ;
-define(['utils'], function (Utils, undefined) {
+define(['util/utils'], function (Utils, undefined) {
     'use strict';
 
     function Box(x, y) {
