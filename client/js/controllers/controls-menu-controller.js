@@ -4,7 +4,7 @@
 define(['vendor/bootstrap'], function () {
     'use strict';
 
-    function controlsSetupController($scope, $window, $document, controls) {
+    function controlsMenuController($scope, $window, $document, controls) {
         $scope.players = [0, 1];
         $scope.gamepads = controls.gamepadsConnected;
         $scope.gamepadsId = controls.gamepadsId;
@@ -116,7 +116,7 @@ define(['vendor/bootstrap'], function () {
         controls.addEventListener('control-connected', $scope.onControllerConnect);
 
     }
-    controlsSetupController.$inject = ['$scope', '$window', '$document', 'jsgControls'];
+    controlsMenuController.$inject = ['$scope', '$window', '$document', 'jsgControls'];
 
-    return controlsSetupController;
+    return controlsMenuController;
 });
