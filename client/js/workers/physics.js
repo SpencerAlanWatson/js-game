@@ -2,8 +2,10 @@
 
 importScripts('../vendor/require.js');
 
-define(['vendor/lodash', 'EventDispatcher'], function (lodash, EventDispatcher) {
+define(['vendor/lodash', 'EventDispatcher' ], function (lodash, EventDispatcher) {
     'use strict';
+    
+   
 
     function Physics() {
         var physics = {
