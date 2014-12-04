@@ -41,6 +41,39 @@
     <div id="canvas-container">
     </div>
     <section id="angular-bootstrap">
+        <section ng-controller="mainMenu" class="angular-container">
+            <!-- Modal -->
+            <div class="modal" id="mainMenuModal" tabindex="-1" role="dialog" aria-labelledby="mainMenuModalLabel" aria-hidden="false">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="mainMenuModalLabel">Main Menu</h4>
+                        </div>
+                        <div class="modal-body">
+                            {{}}
+                            <!--<div ng-show="menuState === 'start'">
+                                <button class="btn btn-primary" ng-click="goToSPSettings()">
+                                    Single player
+                                </button>
+                                <button class="btn btn-primary" ng-click="goToFindLobby()">
+                                    Multiplayer
+                                </button>
+                            </div>
+                            <div ng-show="menuState === 'spSettings'">
+                                <label>Enemies:</label>
+                                <input class="input" type="number">
+                                <button class="btn btn-success" ng-click="startSP()">Start the game</button>
+                                <button class="btn btn-danger" ng-click="goToStart()">Go back</button>
+                            </div>
+                            <div ng-show="menuState === 'findLobby'">
+                                <button class="btn btn-info" ng-click="goToCreateLobby()">Create Lobby</button>
+                                <button class="btn btn-danger" ng-click="goToStart()">Go back</button>
+
+                            </div>-->
+                        </div>
+                    </div>
+                </div>
+        </section>
         <section ng-controller="controllers" class="angular-container">
             <div id="alert-container">
             </div>
@@ -167,6 +200,7 @@
                 </div>
             </div>
         </section>
+
     </section>
     <section id="js-container">
         <script>

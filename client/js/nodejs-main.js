@@ -7,6 +7,8 @@
         baseUrl: __dirname,
         paths: {
             "vendor": "vendor",
+            //NOTE: This is here for completion sake, but probably will not be used.
+            "ui": "ui"
         },
         shim: {
             "vendor/angular": {

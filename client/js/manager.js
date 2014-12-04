@@ -1,5 +1,5 @@
 ;
-define(['vendor/lodash','state', 'controls', 'physics', 'graphics'], function (_, state, Controls, Physics, Graphics, undefined) {
+define(['vendor/lodash', 'vendor/EventDispatcher', 'state', 'controls', 'physics', 'graphics'], function (_, EventDispatcher, state, Controls, Physics, Graphics, undefined) {
     'use strict';
     state.playerCount = 0;
     state.playerTotal = 2;
@@ -7,7 +7,8 @@ define(['vendor/lodash','state', 'controls', 'physics', 'graphics'], function (_
 
         objects: []
     };
-
+    EventDispatcher.prototype.apply(manager);
+    
     manager.init = function (width, height) {
         manager.eventEmitters = {};
 
@@ -23,7 +24,7 @@ define(['vendor/lodash','state', 'controls', 'physics', 'graphics'], function (_
         }
         manager.eventEmitters.controls = manager.controls;
         manager.eventEmitters.physics = manager.physics;
-
+        manager.dispatchEvent({type: 'initialize'});
         return manager;
     };
     manager.start = function () {
@@ -31,6 +32,7 @@ define(['vendor/lodash','state', 'controls', 'physics', 'graphics'], function (_
             manager.graphics.start();
         manager.physics.start(manager.objects);
         manager.controls.start();
+                manager.dispatchEvent({type: 'start'});
 
         return manager;
     };
@@ -39,6 +41,8 @@ define(['vendor/lodash','state', 'controls', 'physics', 'graphics'], function (_
             manager.graphics.stop();
         manager.physics.stop();
         manager.controls.stop();
+                manager.dispatchEvent({type: 'stop'});
+
         return manager;
     };
 
